@@ -2,15 +2,23 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import { store } from './app/store';
 import { Provider } from 'react-redux';
 import * as serviceWorker from './serviceWorker';
+import store from './slices/store';
+// import WebSocketProvider from './WebSocketContext';
 
 ReactDOM.render(
   <React.StrictMode>
+    {/* <ThemeProvider theme={theme}> */}
+
+    {/* <CssBaseline /> */}
     <Provider store={store}>
-      <App />
+      {/* <WebSocketProvider> */}
+        <App />
+      {/* </WebSocketProvider> */}
     </Provider>
+
+    {/* </ThemeProvider> */}
   </React.StrictMode>,
   document.getElementById('root')
 );
