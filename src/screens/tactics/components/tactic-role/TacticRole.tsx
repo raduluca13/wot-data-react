@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import RemoveIcon from "@material-ui/icons/Remove";
 import EditIcon from "@material-ui/icons/Edit";
 import { Button, createStyles, makeStyles, Theme } from '@material-ui/core';
-import { clanDetailsFetchSelector, clanMembersSelector, fetchClanDetailsThunk, tanksFetchSelector } from '../../../../slices/clanSlice';
+import { clanDetailsFetchSelector, clanMembersSelector, fetchClanDetailsThunk, fetchPhoenixClanDetailsThunk, tanksFetchSelector } from '../../../../slices/clanSlice';
 import { PlayerTacticRole } from '../../../../store/types/interfaces/TacticMetadata.interface';
 import { getProperty } from '../../../../slices/teamSlice';
 import { DragSource, DragSourceConnector, DragSourceMonitor, DragSourceSpec, useDrag, useDrop } from 'react-dnd';
@@ -53,7 +53,7 @@ const TacticRole = (props: TacticRoleProps) => {
 
     useEffect(() => {
         if (clanDetailsFetchStatus === 'idle') {
-            dispatch(fetchClanDetailsThunk())
+            dispatch(fetchPhoenixClanDetailsThunk())
         }
 
         if (clanDetailsFetchStatus === "succeeded" && clanMembers.length > 0) {

@@ -5,7 +5,7 @@ import App from './App';
 import { Provider } from 'react-redux';
 import * as serviceWorker from './serviceWorker';
 import store from './slices/store';
-// import WebSocketProvider from './WebSocketContext';
+import WebSocketProvider from './WebSocketContext';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -13,9 +13,9 @@ ReactDOM.render(
 
     {/* <CssBaseline /> */}
     <Provider store={store}>
-      {/* <WebSocketProvider> */}
+      <WebSocketProvider>
         <App />
-      {/* </WebSocketProvider> */}
+      </WebSocketProvider>
     </Provider>
 
     {/* </ThemeProvider> */}

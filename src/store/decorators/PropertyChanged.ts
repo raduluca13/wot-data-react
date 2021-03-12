@@ -98,6 +98,4 @@ export function id() {
 // }
 // export type ChangeApplier<T> = <T>(changedElement: T) => T;
 // export const ChangeApplierrr: <T>(element: T) => T = identity
-// unused helpers // TODO - move them
-type KeysEnum<T> = { [P in keyof Required<T>]: true };
 

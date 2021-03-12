@@ -1,4 +1,5 @@
-import { Point } from "../../../screens/tactics/components/interactive-map/InteractiveMap";
+import { MapTool } from "../../../screens/tactics/components/interactive-map/MapTools";
+import { MapMarker } from "../../../slices/mapInteractionSlice";
 import { Changeable } from "../../decorators/PropertyChanged";
 import { MapBaseNumber } from "../enums/MapBaseNumber.enum";
 import { TacticType } from "../enums/TacticType.enum";
@@ -7,7 +8,8 @@ export interface Tactic extends Changeable<Tactic> {
     id: string;
     metadata: TacticMetadata;
     playerTacticRoles: PlayerTacticRole[];
-    positionList: Point[] // will be extended
+    activeTool: MapTool,
+    positionList: MapMarker[] // will be extended
 }
 
 export interface TacticMetadata {

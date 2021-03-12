@@ -5,8 +5,9 @@ import visibilityFilterReducer from './filterSlice'
 import teamReducer from './teamSlice'
 import clanReducer from './clanSlice'
 import tournamentReducer from './tournamentSlice'
-import roomReducer from './roomSlice'
 import mapInteractionReducer from './mapInteractionSlice'
+import mapsApiReducer from './mapsApiSlice'
+import globalMapReducer from './globalMapSlice'
 
 const rootReducer = combineReducers({
   counterState: counterReducer,
@@ -15,8 +16,9 @@ const rootReducer = combineReducers({
   teamState: teamReducer,
   clanState: clanReducer,
   tournamentState: tournamentReducer,
-  roomState: roomReducer,
-  mapInteractionState: mapInteractionReducer
+  mapInteractionState: mapInteractionReducer,
+  mapsApiState: mapsApiReducer,
+  globalMapState: globalMapReducer
 })
 
 export type BaseId = {

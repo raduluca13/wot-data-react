@@ -10,6 +10,8 @@ import AddTournament from './screens/tournament/AddTournament';
 import TeamForm from './screens/team/TeamForm';
 import AddTactic from './screens/tactics/components/AddTactic';
 import Tactics from './screens/tactics/components/Tactics';
+import InteractiveMap from './screens/tactics/components/interactive-map/InteractiveMap';
+import Provinces from './screens/provinces/Provinces';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -58,6 +60,12 @@ const App = () => {
           </Route>
           <Route path="/tournaments">
             <TournamentSection />
+          </Route>
+          <Route path="/map">
+            <InteractiveMap />
+          </Route>
+          <Route path="/globalMap">
+            <Provinces/>
           </Route>
 
           {/* TODO - latest results dashboards time scaled */}

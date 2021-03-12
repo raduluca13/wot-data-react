@@ -1,15 +1,25 @@
 import React from 'react'
-import useCanvas from './useCanvas'
+import { Point } from '../../../../slices/mapInteractionSlice'
+import { TankType } from '../../../vehicles/types'
+import { MapTool } from './MapTools'
+import useCanvas, { UseCanvasProps } from './useCanvas'
 
-type MapCanvasProps = {
-    draw: Function,
-}
 
-const MapCanvas = (props: MapCanvasProps) => {
-    const { draw, ...rest } = props
-    const canvasRef = useCanvas(draw)
 
-    return <canvas ref={canvasRef} {...props}></canvas>
+const _predraw = (context: CanvasRenderingContext2D) => { }
+const _postdraw = () => { }
+
+const MapCanvas = (props: UseCanvasProps) => {
+    const { draw, preDraw = _predraw, postDraw = _postdraw, styles, onMouseDown, onMouseMove, onMouseUp, markers, cursorPosition } = props
+    const canvasRef = useCanvas(props)
+
+    return <canvas
+        className={styles}
+        ref={canvasRef}
+        onMouseUp={onMouseUp}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+    ></canvas>
 }
 
 export default MapCanvas

@@ -1,7 +1,7 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core';
 import React, { memo, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { clanDetailsFetchSelector, fetchClanDetailsThunk } from '../../slices/clanSlice';
+import { clanDetailsFetchSelector, fetchClanDetailsThunk, fetchPhoenixClanDetailsThunk } from '../../slices/clanSlice';
 import { User } from '../vehicles/types';
 import ClanMember from './ClanMember';
 
@@ -23,7 +23,7 @@ const Clan = () => {
 
     useEffect(() => {
         if (clanDetailsFetchStatus === 'idle') {
-            dispatch(fetchClanDetailsThunk())
+            dispatch(fetchPhoenixClanDetailsThunk())
         }
     }, [dispatch, clanDetailsFetchStatus])
 
