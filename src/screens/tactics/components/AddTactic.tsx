@@ -36,7 +36,7 @@ const AddTactic = () => {
 
     return (
         <div>
-            <InteractiveMap />
+            {/* <InteractiveMap /> */}
             <TacticMetadataForm />
             <TacticRoleForm />
             <hr />

@@ -1,10 +1,10 @@
 
 export enum TankType {
     MEDIUM = "mediumTank",
-    HEAVY = "",
-    SPG = "",
-    LIGHT = "",
-    TD = ""
+    HEAVY = "heavyTank",
+    SPG = "spg",
+    LIGHT = "lightTank",
+    TD = "td"
 }
 
 export interface ClanEmblemPortal {

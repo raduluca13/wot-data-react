@@ -8,7 +8,7 @@ import { PlayerTacticRole, Tactic, TacticMetadata } from '../../../store/types/i
 import { WoTMap } from '../../../store/types/interfaces/WoTMap.interface';
 import { buildParamStr, redirectTo } from '../../../utils/url/urlUtils';
 import { applyChanges, Change, ChangeType } from '../../../store/decorators/PropertyChanged';
-import { Point } from '../components/interactive-map/InteractiveMap';
+import { MapMarker, MarkerType } from '../../../slices/mapInteractionSlice';
 
 const MAP_API = 'https://api.worldoftanks.ru/wot/encyclopedia/arenas/'
 const MAP_IMAGES_API = "https://stratsketch.com/maps/wot/thumb/"
@@ -57,7 +57,11 @@ export const createDefaultTactic = () => {
         id: DEFAULT_NEW_TACTIC_ID,
         metadata: createDefaultTacticMetadata(),
         playerTacticRoles: [],
+        activeTool: {
+            cursorTool: true
+        },
         positionList: [],
+        cursorPosition: { x: 0, y: 0, markerType: MarkerType.MEDIUM_TANK } as MapMarker,
         changes: []
     } as Tactic
 }
@@ -97,6 +101,8 @@ export const fetchMapsThunk = createAsyncThunk('maps/fetchMaps', async () => {
     return json.data;
 })
 
+
+// TODO - remove any maps api logic from here (separate slice)
 export const tacticsSlice = createSlice({
     name: 'tactics',
     initialState,
@@ -157,26 +163,35 @@ export const tacticsSlice = createSlice({
             saveTacticsState(state);
             redirectTo(TACTICS_PAGE);
         },
-        addTacticPosition: (state, action: PayloadAction<Point>) => {
-            const point = action.payload;
-            const tacticIndex = state.tactics.findIndex(tactic => tactic.id === state.selectedTacticId)
-            if (tacticIndex !== -1) {
-                const tactic = state.tactics[tacticIndex];
-                const updatedPositionList = [...tactic.positionList]
-                updatedPositionList.push(point);
-                if (updatedPositionList.length > 100) {
-                    updatedPositionList.splice(0, 1)
-                }
-                tactic.positionList = [...updatedPositionList]
-            }
-        },
-        saveTacticPositions: (state, action: PayloadAction<Point[]>) => {
-            const positionList = action.payload;
-            const tacticIndex = state.tactics.findIndex(tactic => tactic.id === state.selectedTacticId)
-            if (tacticIndex !== -1) {
-                state.tactics[tacticIndex].positionList = [...positionList]
-            }
-        },
+        // moveCursor: (state, action: PayloadAction<Point>) => {
+        //     const point = action.payload;
+        //     // console.log({ point }, state.selectedTacticId)
+        //     const tacticIndex = state.tactics.findIndex(tactic => tactic.id === state.selectedTacticId)
+        //     if (tacticIndex !== -1) {
+        //         state.tactics[tacticIndex].cursorPosition = point;
+        //     }
+        // },
+        // addTacticPosition: (state, action: PayloadAction<Point>) => {
+        //     const point = action.payload;
+        //     // console.log({ point })
+        //     const tacticIndex = state.tactics.findIndex(tactic => tactic.id === state.selectedTacticId)
+        //     if (tacticIndex !== -1) {
+        //         const tactic = state.tactics[tacticIndex];
+        //         const updatedPositionList = [...tactic.positionList]
+        //         updatedPositionList.push(point);
+        //         if (updatedPositionList.length > 100) {
+        //             updatedPositionList.splice(0, 1)
+        //         }
+        //         tactic.positionList = [...updatedPositionList]
+        //     }
+        // },
+        // saveTacticPositions: (state, action: PayloadAction<Point[]>) => {
+        //     const positionList = action.payload;
+        //     const tacticIndex = state.tactics.findIndex(tactic => tactic.id === state.selectedTacticId)
+        //     if (tacticIndex !== -1) {
+        //         state.tactics[tacticIndex].positionList = [...positionList]
+        //     }
+        // },
         clearTacticPositions: (state) => {
             const tacticIndex = state.tactics.findIndex(tactic => tactic.id === state.selectedTacticId)
             if (tacticIndex !== -1) {
@@ -305,8 +320,9 @@ export const {
     saveTactic,
     removeTactic,
     cancelTacticChanges,
-    addTacticPosition,
-    saveTacticPositions,
+    // moveCursor,
+    // addTacticPosition,
+    // saveTacticPositions,
     clearTacticPositions,
     changeTacticRoleIndex,
     changeSelectedTactic,
@@ -355,8 +371,8 @@ export const tacticRolesSelector = createSelector(
     }
 )
 
+export const activeToolSelector = createSelector([selectedTacticSelector], (selectedTactic) => { return selectedTactic.activeTool })
 export const positionListSelector = createSelector([selectedTacticSelector], (selectedTactic) => { return selectedTactic.positionList })
-
 
 export default tacticsSlice.reducer;
 

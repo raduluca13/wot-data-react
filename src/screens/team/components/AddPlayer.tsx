@@ -12,7 +12,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import AddIcon from "@material-ui/icons/Add";
 import { FormGroup } from '@material-ui/core';
-import { clanDetailsFetchSelector, fetchClanDetailsThunk } from '../../../slices/clanSlice';
+import { clanDetailsFetchSelector, fetchClanDetailsThunk, fetchPhoenixClanDetailsThunk } from '../../../slices/clanSlice';
 import { User } from '../../vehicles/types';
 import {
     createDefaultUser,
@@ -53,7 +53,7 @@ const AddPlayer = () => {
 
     useEffect(() => {
         if (clanDetailsFetchStatus === 'idle') {
-            dispatch(fetchClanDetailsThunk())
+            dispatch(fetchPhoenixClanDetailsThunk())
         }
     }, [clanDetailsFetchStatus])
 

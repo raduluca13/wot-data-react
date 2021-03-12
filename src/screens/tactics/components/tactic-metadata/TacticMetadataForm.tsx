@@ -10,7 +10,7 @@ import {
     MenuItem,
     Button
 } from '@material-ui/core';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     allMapsSelector,

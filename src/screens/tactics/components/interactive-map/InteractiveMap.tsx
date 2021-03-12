@@ -1,16 +1,23 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core';
-import React, { MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { makeStyles, Theme, createStyles, MenuItem } from '@material-ui/core';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { joinRoomThunk, roomSelector, roomStateSelector } from '../../../../slices/roomSlice';
-import { selectedMapSelector, createMapImageUrl, positionListSelector, addTacticPosition } from '../../store/tacticsSlice';
-import MapTools from './MapTools';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
-import MapCanvas from './MapCanvas';
+
+import {
+    createMapImageUrl,
+    allMapsSelector,
+} from '../../store/tacticsSlice';
+import MapTools, { MapTool } from './MapTools';
+import { WebSocketContext } from '../../../../WebSocketContext';
+import { addMarker, cursorPositionSelector, MapMarker, markersSelector, Point, selectedToolSelector } from '../../../../slices/mapInteractionSlice';
+import useCanvas from './useCanvas';
+import { WoTMap } from '../../../../store/types/interfaces/WoTMap.interface';
+import { fetchMapsThunk, mapsApiStateSelector, selectedInteractiveMapSelector } from '../../../../slices/mapsApiSlice';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         mapContainer: {
-            display: "flex"
+            display: "flex",
+            cursor: (props: any) => props["isCursorDisplayed"] ? "inherit" : "none"
         },
         map: {
             display: "block",
@@ -24,31 +31,28 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export interface Point {
-    x: number;
-    y: number;
-}
-
-// TODO - will be extended with icons and labels and so on
-export type Coordinates = Point[]
 
 const InteractiveMap = () => {
-    const map = useRef(document.createElement("CANVAS") as HTMLCanvasElement)
-    console.log({ map })
-    const { room, usersInRoom, hasConnectionErrors, connectionStatus } = useSelector(roomStateSelector);
-    const positionList = useSelector(positionListSelector);
-    console.log({ positionList })
-    const selectedMap = useSelector(selectedMapSelector);
     const dispatch = useDispatch();
+
+    const { mapFetchError, mapFetchStatus, maps } = useSelector(mapsApiStateSelector)
+    const cursorPosition = useSelector(cursorPositionSelector);
+    const markers = useSelector(markersSelector);
+    const webSocketContext = useContext(WebSocketContext);
+    const selectedMap = useSelector(selectedInteractiveMapSelector);
+    const activeTool = useSelector(selectedToolSelector);
+
     const SIZE = 400;
     const MARGIN_PROCENT = 10; // TODO - how you keep this with container's 10%? it should remain as is, but connect the values somehow
 
+    const [isCursorDisplayed, setIsCursorDisplayed] = useState(true)
     const [mapImageUrl, setMapImageUrl] = useState("");
     const [isMovingEnabled, setIsMovingEnabled] = useState(false);
-    const [isMovableAction, setIsMovableAction] = useState(false);
+
     const classes = useStyles({
         image: `url('${mapImageUrl}')`,
-        repeat: "no-repeat"
+        repeat: "no-repeat",
+        isCursorDisplayed
     })
 
     const getOffsetAndScaleFactor = () => {
@@ -65,28 +69,11 @@ const InteractiveMap = () => {
         }
     }
 
-    const drawPositionList = useCallback(() => {
-        const canvas = map.current as HTMLCanvasElement;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-            if (positionList.length === 0) {
-                ctx.clearRect(0, 0, SIZE, SIZE);
-                return;
-            }
-            positionList.forEach((point: Point) => {
-                ctx.beginPath();
-                ctx.fillStyle = "#FF0000";
-                ctx.fillRect(point.x, point.y, 5, 5);
-                ctx.fill();
-            })
+    useEffect(() => {
+        if (mapFetchStatus === 'idle') {
+            dispatch(fetchMapsThunk())
         }
-    }, [positionList])
-
-    // useEffect(() => {
-    //     if (room === undefined || connectionStatus === "idle") {
-    //         dispatch(joinRoomThunk())
-    //     }
-    // }, [positionList, room, connectionStatus])
+    }, [dispatch, mapFetchStatus])
 
     useEffect(() => {
         if (selectedMap != null) {
@@ -95,75 +82,95 @@ const InteractiveMap = () => {
         }
     }, [selectedMap, mapImageUrl])
 
-    useEffect(() => {
-        if (!!mapImageUrl && positionList.length > 0) {
-            drawPositionList()
-        }
-    }, [mapImageUrl, positionList, drawPositionList])
+    const onMouseLeave = useCallback((event) => {
+        setIsCursorDisplayed(true)
+    }, [isCursorDisplayed])
 
+    const onMouseEnter = useCallback((event) => {
+        if (isMovingEnabled) {
+            setIsCursorDisplayed(false)
+        }
+    }, [isCursorDisplayed, isMovingEnabled])
+
+    useEffect(() => {
+        if (!activeTool) {
+            return
+        }
+
+        if (activeTool.cursorTool) {
+            setIsMovingEnabled(true)
+        }
+
+        if (activeTool.tankTool) {
+            setIsMovingEnabled(false)
+        }
+    }, [activeTool])
 
     const onMouseMove = useCallback((event) => {
-        const { OFFSET_TOP, OFFSET_LEFT, SCALE_FACTOR } = getOffsetAndScaleFactor()
-        if (map && map.current) {
-            const canvas = map.current as HTMLCanvasElement
-            const ctx = canvas.getContext('2d');
-            canvas.width = SIZE;
-            canvas.height = SIZE;
-            // const CONTAINER_WIDTH = canvas.parentElement?.clientWidth ?? 0;
-            if (ctx) {
-                const x = event.clientX - OFFSET_LEFT;
-                const y = event.clientY - SCALE_FACTOR * OFFSET_TOP;
-                const coord = { x, y } as Point;
-                dispatch(addTacticPosition(coord))
-            }
+        if (!isMovingEnabled) {
+            return
         }
 
-        if (isMovingEnabled) {
-            console.log("move")
-            console.log(event.target);
-        }
+        const { OFFSET_TOP, OFFSET_LEFT, SCALE_FACTOR } = getOffsetAndScaleFactor()
+        const x = event.clientX - OFFSET_LEFT;
+        const y = event.clientY - SCALE_FACTOR * OFFSET_TOP;
+        const coord = { x, y } as Point;
+
+        console.log(`emitted x-${x}, y-${y}`)
+        webSocketContext.socket.emit("cursorPositionChanged", JSON.stringify(coord))
     }, [dispatch, isMovingEnabled]);
 
     const onMouseDown = useCallback((event) => {
-        const { OFFSET_TOP, OFFSET_LEFT, SCALE_FACTOR } = getOffsetAndScaleFactor()
-        const canvas = map.current as HTMLCanvasElement;
-        const ctx = canvas.getContext("2d");
-        canvas.width = SIZE;
-        canvas.height = SIZE;
-        // const CONTAINER_WIDTH = canvas.parentElement?.clientWidth ?? 0;
-        if (ctx) {
-            const x = event.clientX - OFFSET_LEFT;
-            const y = event.clientY - SCALE_FACTOR * OFFSET_TOP;
-            const coord = { x, y } as Point;
-            dispatch(addTacticPosition(coord))
+        if (!activeTool) {
+            return;
         }
 
-        if (isMovableAction) {
-            // set isMovable when user picks some tool.. not yet
-            setIsMovingEnabled(true);
+        if (activeTool.cursorTool) {
+            if (!isMovingEnabled) {
+                setIsMovingEnabled(true);
+                return;
+            }
         }
-    }, [dispatch, isMovableAction]);
+
+        if (activeTool.tankTool) {
+            const { OFFSET_TOP, OFFSET_LEFT, SCALE_FACTOR } = getOffsetAndScaleFactor()
+            const x = event.clientX - OFFSET_LEFT;
+            const y = event.clientY - SCALE_FACTOR * OFFSET_TOP;
+            const marker = { x, y, markerType: activeTool.tankTool } as MapMarker;
+            // dispatch(addMarker(marker))
+            webSocketContext.socket.emit("markerAdded", JSON.stringify(marker))
+        }
+
+    }, [dispatch, isMovingEnabled, setIsMovingEnabled, activeTool]);
 
     const onMouseUp = useCallback((event) => {
         setIsMovingEnabled(false);
-    }, []);
+    }, [setIsMovingEnabled]);
 
-    const draw = (ctx: CanvasRenderingContext2D) => {
-        ctx.fillStyle = '#000000'
-        ctx.beginPath()
-        ctx.arc(50, 100, 20, 0, 2 * Math.PI)
-        ctx.fill()
-    }
+    const canvasRef = useCanvas({ cursorPosition, markers, onMouseMove, onMouseDown, onMouseUp, activeTool })
 
     return <div className={classes.mapContainer}>
-        <MapCanvas draw={draw} />
         <canvas
-            ref={map}
             className={classes.map}
-            onMouseDown={onMouseDown}
-            // onMouseMove={onMouseMove}
+            ref={canvasRef}
+            onMouseLeave={onMouseLeave}
+            onMouseEnter={onMouseEnter}
             onMouseUp={onMouseUp}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
         ></canvas>
+        {/* <MapCanvas
+            positionList={positionList}
+            cursorPosition={cursorPosition}
+            draw={() => { }}
+            styles={classes.map}
+            preDraw={() => { }}
+            postDraw={() => { }}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
+            activeTool={activeTool}
+            onMouseUp={onMouseUp}
+        /> */}
         <MapTools />
     </div>
 }
