@@ -5,8 +5,7 @@ import {
     PayloadAction
 } from '@reduxjs/toolkit';
 import { FetchStatus, RootState } from '.';
-import APPLICATION_ID from '../api/config';
-
+import CONFIG from '../api/config';
 export const LOGIN_API = 'http://api.worldoftanks.eu/wot/auth/login/'
 
 
@@ -42,7 +41,7 @@ const initialState: AuthenticationState = {
 }
 
 export const buildLoginUrl: () => string = () => {
-    return `${LOGIN_API}?application_id=${APPLICATION_ID}&no_follow=1&redirect_uri=http%3A//wot-data-client.herokuapp.com/login-redirect`;
+    return `${LOGIN_API}?application_id=${CONFIG.APPLICATION_ID}&no_follow=1&redirect_uri=${CONFIG.REDIRECT_URL}`;
 }
 
 export const loginWithXHR = () => {
@@ -51,7 +50,7 @@ export const loginWithXHR = () => {
 
     //Send the proper header information along with the request
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.setRequestHeader("Allow-Origin", "http://wot-data-client.herokuapp.com")
+    xhr.setRequestHeader("Allow-Origin", CONFIG.ALLOW_ORIGIN_VALUE)
 
     xhr.onreadystatechange = function () { // Call a function when the state changes.
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
@@ -60,7 +59,7 @@ export const loginWithXHR = () => {
         }
     }
 
-    xhr.send(`application_id=${APPLICATION_ID}&no_follow=1&allow=Confirm`);
+    xhr.send(`application_id=${CONFIG.APPLICATION_ID}&no_follow=1&allow=Confirm`);
 }
 
 export const loginThunk = createAsyncThunk('authentication/login', async () => {

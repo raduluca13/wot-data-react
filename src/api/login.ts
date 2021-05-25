@@ -11,6 +11,7 @@ export enum LoginDisplayType {
     POPUP = "popup"
 }
 
+// DEPRECATED - TODO - delete this file
 const login = () => {
     const loginData: LoginData = {
         application_id: "cb96a1fa695145b03a603132c093b238",

@@ -46,6 +46,10 @@ const Menu = () => {
             <Typography variant="h6" className={classes.title}>
                 <Button onClick={() => redirectTo('/map')}>Map</Button>
             </Typography>
+            
+            <Typography variant="h6" className={classes.title}>
+                <Button onClick={() => redirectTo('/clan-details')}>Clan members</Button>
+            </Typography>
 
             <Typography variant="h6" className={classes.title}>
                 <Button onClick={() => redirectTo('/profile')}>My profile</Button>

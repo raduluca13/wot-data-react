@@ -5,7 +5,7 @@ import {
     PayloadAction
 } from '@reduxjs/toolkit';
 import { FetchStatus, RootState } from '.';
-import APPLICATION_ID from '../api/config';
+import CONFIG from '../api/config';
 import { ClanDetails, User, Vehicle } from '../screens/vehicles/types';
 import { buildParamStr } from '../utils/url/urlUtils';
 
@@ -44,7 +44,7 @@ const initialState: ClanState = {
 
 const buildClansQueryUrl: (url: string, params: any) => string = (url, params: any) => {
     const queryParamStr = buildParamStr(params);
-    return `${url}?application_id=${APPLICATION_ID}&${queryParamStr}`;
+    return `${url}?application_id=${CONFIG.APPLICATION_ID}&${queryParamStr}`;
 }
 
 const phoenixUrl = buildClansQueryUrl(CLAN_DETAILS_API, { clan_id: PHONENIX_CLAN_ID })

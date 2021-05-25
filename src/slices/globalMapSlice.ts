@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { FetchStatus, RootState } from ".";
-import APPLICATION_ID from "../api/config";
+import CONFIG from "../api/config";
 import { buildParamStr } from "../utils/url/urlUtils";
 
 export enum GlobalMapFronts {
@@ -125,7 +125,7 @@ const initialState: GlobalMapState = {
 }
 const buildProvincesQueryUrl: (url: string, params: any) => string = (url, params: any) => {
     const queryParamStr = buildParamStr(params);
-    return `${url}?application_id=${APPLICATION_ID}&${queryParamStr}`;
+    return `${url}?application_id=${CONFIG.APPLICATION_ID}&${queryParamStr}`;
 }
 
 const PROVINCES_API = 'https://api.worldoftanks.eu/wot/globalmap/provinces/'

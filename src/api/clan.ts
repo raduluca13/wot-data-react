@@ -1,4 +1,4 @@
-import APPLICATION_ID from "./config";
+import CONFIG from "./config";
 import { from, Observable } from 'rxjs';
 import { buildParamStr } from "../utils/url/urlUtils";
 
@@ -19,7 +19,7 @@ export default function clan() {
 
     const buildClansQueryUrl: (url: string, params: any) => string = (url, params: any) => {
         const queryParamStr = buildParamStr(params);
-        return `${url}?application_id=${APPLICATION_ID}&${queryParamStr}`;
+        return `${url}?application_id=${CONFIG.APPLICATION_ID}&${queryParamStr}`;
     }
 
     const getClan: (name: string) => Observable<any> = (name: string) => {

@@ -1,7 +1,7 @@
 
 import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BaseId, FetchStatus, RootState } from '../../../slices';
-import APPLICATION_ID from '../../../api/config';
+import CONFIG from '../../../api/config';
 import { MapBaseNumber } from '../../../store/types/enums/MapBaseNumber.enum';
 import { TacticType } from '../../../store/types/enums/TacticType.enum';
 import { PlayerTacticRole, Tactic, TacticMetadata } from '../../../store/types/interfaces/TacticMetadata.interface';
@@ -90,7 +90,7 @@ export type ChangeTacticBaseNumber = {
 
 const buildMapsQueryUrl: (url: string, params: any) => string = (url, params: any) => {
     const queryParamStr = buildParamStr(params);
-    return `${url}?application_id=${APPLICATION_ID}&${queryParamStr}`;
+    return `${url}?application_id=${CONFIG.APPLICATION_ID}&${queryParamStr}`;
 }
 const url = buildMapsQueryUrl(MAP_API, { language: "en" })
 

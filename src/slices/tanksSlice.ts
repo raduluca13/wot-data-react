@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSelector, createSlice } from "@reduxjs/toolkit";
 import { FetchStatus, RootState } from ".";
-import APPLICATION_ID from "../api/config";
+import CONFIG from "../api/config";
 import { VehicleResponse } from "../screens/vehicles/types";
 import { buildParamStr } from "../utils/url/urlUtils";
 
@@ -25,7 +25,7 @@ const initialState: TanksState = createDefaultTanksState();
 
 const buildTanksQueryUrl: (url: string, params: any) => string = (url, params: any) => {
     const queryParamStr = buildParamStr(params);
-    return `${url}?application_id=${APPLICATION_ID}&${queryParamStr}`;
+    return `${url}?application_id=${CONFIG.APPLICATION_ID}&${queryParamStr}`;
 }
 
 
