@@ -6,7 +6,7 @@ import { addMarker, clearMarkers, MapMarker, moveCursor, setActiveTool } from '.
 import { changeMap } from './slices/mapsApiSlice';
 
 export const NEW_CHAT_MESSAGE_EVENT = "newChatMessage";
-export const WS_BASE = 'ws://127.0.0.1:5555';
+export const WS_BASE = 'ws://wot-data-server.herokuapp.com:5555';
 // export const socket = io.connect(WS_BASE, { query: { roomId: 1 } });
 
 const socket = io(WS_BASE, {
