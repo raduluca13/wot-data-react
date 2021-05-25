@@ -15,7 +15,9 @@ const useStyles = makeStyles((theme: Theme) =>
             justifyContent: 'space-between'
         },
         teams: {
-            display: 'flex'
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'space-evenly'
         }
     }),
 );

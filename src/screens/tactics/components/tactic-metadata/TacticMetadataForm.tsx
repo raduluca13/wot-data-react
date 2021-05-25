@@ -10,7 +10,7 @@ import {
     MenuItem,
     Button
 } from '@material-ui/core';
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     allMapsSelector,
@@ -28,13 +28,16 @@ import { WoTMap } from '../../../../store/types/interfaces/WoTMap.interface';
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         formGroup: {
-            // display: "flex",
-            flexDirection: "row"
+            display: "flex",
+            flexDirection: "column"
         },
         formControl: {
             margin: theme.spacing(1),
             minWidth: 120,
         },
+        saveButton: {
+            marginTop: '2rem'
+        }
     }),
 );
 
@@ -94,8 +97,6 @@ const TacticMetadataForm = () => {
     }, [dispatch, tacticMetadata])
 
 
-
-
     const buildTacticMetadataFormGroup = () => {
         return <FormGroup className={classes.formGroup}>
             <FormControl className={classes.formControl}>
@@ -130,7 +131,9 @@ const TacticMetadataForm = () => {
                     {buildBaseNumberOptions()}
                 </Select>
             </FormControl>
+
             <Button
+                className={classes.saveButton}
                 variant="outlined"
                 color="primary"
                 onClick={onClickSaveForm}
@@ -141,9 +144,7 @@ const TacticMetadataForm = () => {
         </FormGroup>
     }
 
-    return <div>
-        {buildTacticMetadataFormGroup()}
-    </div>
+    return buildTacticMetadataFormGroup()
 }
 
 export default TacticMetadataForm;

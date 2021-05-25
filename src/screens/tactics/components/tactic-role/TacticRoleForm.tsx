@@ -28,13 +28,21 @@ const createDefaultTacticRole = () => {
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         formGroup: {
-            // display: "flex",
-            flexDirection: "row"
+            display: "flex",
+            flexDirection: "row",
+            alignItems: 'center'
+
         },
         formControl: {
-            margin: theme.spacing(1),
+            margin: theme.spacing(2),
             minWidth: 120,
         },
+        addRoleButton: {
+            width: '2rem',
+            height: '2rem',
+            marginTop: theme.spacing(2),
+            fontSize: '2rem'
+        }
     }),
 );
 
@@ -147,6 +155,7 @@ const TacticRoleForm = () => {
                     </Select>
                 </FormControl>
                 <Button
+                    className={classes.addRoleButton}
                     variant="outlined"
                     color="primary"
                     onClick={onClickAddTacticRole}

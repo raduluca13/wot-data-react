@@ -130,7 +130,7 @@ export const tacticsSlice = createSlice({
             }
             state.selectedTacticId = DEFAULT_NEW_TACTIC_ID;
             saveTacticsState(state);
-            redirectTo(TACTICS_PAGE)
+            // redirectTo(TACTICS_PAGE)
         },
         removeTactic: (state, action: PayloadAction<BaseId>) => {
             const deletableTacticId = action.payload.id;

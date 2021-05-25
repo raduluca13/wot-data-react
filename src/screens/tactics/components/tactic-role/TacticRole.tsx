@@ -35,7 +35,7 @@ const TacticRole = (props: TacticRoleProps) => {
         playerId: props.playerId,
         index: props.index
     } as PlayerTacticRole
-    const { isDragging, connectDragSource } = props;
+    const { connectDragSource } = props;
     const { clanDetailsFetchErrors, clanDetailsFetchStatus, clanDetails } = useSelector(clanDetailsFetchSelector);
     const { tanksFetchErrors, tanksFetchStatus, tanks } = useSelector(tanksFetchSelector);
     const { clanMembers } = useSelector(clanMembersSelector)
@@ -90,19 +90,19 @@ const TacticRole = (props: TacticRoleProps) => {
 }
 
 const tacticRoleSpec: DragSourceSpec<PlayerTacticRole, any> = {
-    beginDrag(props, monitor: DragSourceMonitor) {
-        console.log("begin drag", { props })
-        return props
+    beginDrag(draggedTarget: PlayerTacticRole, monitor: DragSourceMonitor) {
+        console.log("begin drag", { draggedTarget }, { monitor })
+        return draggedTarget
     },
-    endDrag(props: PlayerTacticRole, monitor, component) {
+    endDrag(currentTarget: PlayerTacticRole, monitor: DragSourceMonitor, component) {
         if (!monitor.didDrop()) {
             return;
         }
-        console.log("ending drag: ", { props })
+        console.log("ending drag: ", { currentTarget }, { component })
         // When dropped on a compatible target, do something.
         // Read the original dragged item from getItem():
-        const dragItem = monitor.getItem()
-        console.log({ dragItem })
+        const draggedItem = monitor.getItem()
+        console.log({ currentTarget }, { draggedItem })
 
         // You may also read the drop result from the drop target
         // that handled the drop, if it returned an object from
@@ -113,17 +113,16 @@ const tacticRoleSpec: DragSourceSpec<PlayerTacticRole, any> = {
         // TODO - dispatch change index
         // changeTacticRoleIndex(dragItem.index, dropResult.)
     },
-    isDragging(props: PlayerTacticRole, monitor) {
-        console.log("dragging item", monitor.getItem(), { props })
-        if (monitor.getItem().id !== props.index) {
-
-        }
-        return monitor.getItem().id === props.index
+    isDragging(draggetTarget: PlayerTacticRole, monitor: DragSourceMonitor) {
+        // console.log("dragging item", monitor.getItem(), { draggetTarget }, { monitor })
+        // if (monitor.getItem().id !== draggetTarget.index) {
+        //     console.log("is over another one")
+        // }
+        // return monitor.getItem().id === draggetTarget.index
+        return true;
     },
-    canDrag(props: PlayerTacticRole) {
+    canDrag(target: PlayerTacticRole) {
         // You can disallow drag based on props
-        // return props.isReady
-        console.log("can drag: ", true)
         return true;
     }
 }
@@ -134,7 +133,7 @@ const collect = (connect: DragSourceConnector, monitor: DragSourceMonitor, props
         // to let React DnD handle the drag events:
         connectDragSource: connect.dragSource(),
         // You can ask the monitor about the current drag state:
-        isDragging: monitor.isDragging()
+        // isDragging: monitor.isDragging()
     }
 }
 export default DragSource("tacticRole", tacticRoleSpec, collect)(TacticRole);

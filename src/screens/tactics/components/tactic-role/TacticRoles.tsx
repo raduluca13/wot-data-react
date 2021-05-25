@@ -8,8 +8,8 @@ import TacticRole from './TacticRole';
 
 const TacticRoles = (props: ReturnType<typeof collect>) => {
     const tacticRoles = useSelector(tacticRolesSelector);
-    const { canDrop, isOver, connectDropTarget } = props;
-    const renderTacticRoles = (tacticRole: PlayerTacticRole, index: number) => <TacticRole key={tacticRole.playerId} {...tacticRole} />
+    const { connectDropTarget } = props;
+    const renderTacticRoles = (tacticRole: PlayerTacticRole) => <TacticRole key={tacticRole.index} {...tacticRole} />
 
     return connectDropTarget(
         <div className="tactic-roles">
@@ -19,23 +19,24 @@ const TacticRoles = (props: ReturnType<typeof collect>) => {
 }
 
 const dropTargetSpec: DropTargetSpec<PlayerTacticRole> = {
-    drop(props: PlayerTacticRole, monitor: DropTargetMonitor) {
-        console.log("dropping", { props })
-        return props
+    hover: (props: any, monitor: DropTargetMonitor, component: any) => {
+        console.log('hovering ', { props })
+        console.log(monitor.isOver({ shallow: true }))
     },
-    canDrop(props: PlayerTacticRole) {
+    drop(draggedTarget: PlayerTacticRole) {
+        return draggedTarget
+    },
+    canDrop() {
         // You can disallow drag based on props
-        // return props.isReady
-        console.log("can drop: ", true)
         return true;
     }
 }
 
-let collect = (connect: DropTargetConnector, monitor: DropTargetMonitor, props: unknown) => {
+let collect = (connect: DropTargetConnector) => {
     return {
         connectDropTarget: connect.dropTarget(),
-        isOver: monitor.isOver(),
-        canDrop: monitor.canDrop()
+        // isOver: monitor.isOver(),
+        // canDrop: monitor.canDrop()
     };
 }
 export default DropTarget("tacticRole", dropTargetSpec, collect)(TacticRoles);

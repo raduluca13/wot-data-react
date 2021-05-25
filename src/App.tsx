@@ -1,5 +1,5 @@
-import { makeStyles, Theme, createStyles, Button } from '@material-ui/core';
-import React, { useCallback } from 'react';
+import { makeStyles, Theme, createStyles } from '@material-ui/core';
+import React, { useEffect } from 'react';
 // import logo from './logo.svg';
 import './App.css';
 import Teams from './screens/team/components/Teams';
@@ -14,16 +14,17 @@ import InteractiveMap from './screens/tactics/components/interactive-map/Interac
 import Provinces from './screens/provinces/Provinces';
 import PlayerVechicleStatistics from './screens/clan-details/PlayerVehicleStatistics';
 import { useDispatch, useSelector } from 'react-redux';
-import { authenticationFetchSelector, loginThunk } from './slices/authenticationSlice';
-import { AuthProvider } from 'oidc-react';
+import { authenticationFetchSelector, buildLoginUrl, loginThunk } from './slices/authenticationSlice';
+import Login from './components/Login';
+import Menu from './components/Menu';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       border: '1px solid black',
-      marginTop: '10%',
-      marginLeft: '10%',
-      marginRight: '10%',
+      // marginTop: '10%',
+      // marginLeft: '10%',
+      // marginRight: '10%',
       // minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
@@ -36,32 +37,27 @@ const useStyles = makeStyles((theme: Theme) =>
 const App = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const { authenticationFetchStatus, authenticationFetchErrors } = useSelector(authenticationFetchSelector)
+  const { userLoggedIn, authenticationFetchStatus, authenticationFetchErrors } = useSelector(authenticationFetchSelector);
 
-  const login = useCallback(() => {
-    if (authenticationFetchStatus === 'idle') {
-      // dispatch(loginThunk())
+  // const params = useParams();
+
+  useEffect(() => {
+    const currentAccessToken = userLoggedIn.access_token
+
+    if (authenticationFetchStatus === "succeeded" && !currentAccessToken) {
+      const redirection = buildLoginUrl()
+      window.location.href = redirection
     }
-  }, [])
 
-  const oidcConfig = {
-    onSignIn: () => {
-      // Redirect?
-    },
-    // https://eu.wargaming.net/id/503047828-ExcisonX
-    authority: 'https://eu.wargaming.net/id/openid/',
-    clientId: 'cb96a1fa695145b03a603132c093b238',
-    redirectUri: 'https://wot-data-client.herokuapp.com/'
-  };
+    if (authenticationFetchStatus === 'idle' && !currentAccessToken) {
+      dispatch(loginThunk())
+    }
+  }, [authenticationFetchStatus, userLoggedIn])
 
   return (
     <div className={classes.root}>
-      <h1>Application</h1>
-      <Button variant="outlined" color="primary" onClick={login}>
-        LOGIN
-        </Button>
-      <AuthProvider {...oidcConfig}>
       <BrowserRouter>
+        <Menu />
         <Switch>
           <Route path="/clan-details">
             <Clan />
@@ -93,14 +89,15 @@ const App = () => {
           <Route path="/tank-statistics/:playerId">
             <PlayerVechicleStatistics />
           </Route>
-
+          <Route path="/login-redirect">
+            <Login />
+          </Route>
           {/* TODO - latest results dashboards time scaled */}
           {/* TODO - tasks screen */}
           {/* TODO - wildcard path */}
         </Switch>
       </BrowserRouter>
-      </AuthProvider>
-    </div>
+    </div >
   );
 }
 
