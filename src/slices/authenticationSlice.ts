@@ -27,6 +27,7 @@ export const loginThunk = createAsyncThunk('authentication/login', async () => {
     const response: Response = await fetch(buildLoginUrl(), {
         method: "POST",
         headers: {
+            "Access-Control-Allow-Origin": "htpps://wot-data-client.herokuapp.com",
             "Referer": "https://wot-data-client.herokuapp.com",
             "Origin": "htpps://wot-data-client.herokuapp.com"
         }
