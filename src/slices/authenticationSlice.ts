@@ -20,16 +20,16 @@ const initialState: AuthenticationState = {
 }
 
 const buildLoginUrl: () => string = () => {
-    return `${LOGIN_API}?application_id=${APPLICATION_ID}&expires_at=1623156863&display=page&no_follow=0&redirect_uri=https://wot-data-client.herokuapp.com/`;
+    return `${LOGIN_API}?application_id=${APPLICATION_ID}&expires_at=600&display=popup&no_follow=0&redirect_uri=http://localhost:3000`;
 }
 
 export const loginThunk = createAsyncThunk('authentication/login', async () => {
     const response: Response = await fetch(buildLoginUrl(), {
         method: "POST",
         headers: {
-            "Access-Control-Allow-Origin": "htpps://wot-data-client.herokuapp.com",
-            "Referer": "https://wot-data-client.herokuapp.com",
-            "Origin": "htpps://wot-data-client.herokuapp.com"
+            "Access-Control-Allow-Origin": "http://localhost:3000",
+            // "Referer": "https://wot-data-client.herokuapp.com",
+            "Origin": "http://localhost:3000"
         }
     });
     const json = await response.json();

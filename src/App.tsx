@@ -40,18 +40,19 @@ const App = () => {
 
   const login = useCallback(() => {
     if (authenticationFetchStatus === 'idle') {
-      dispatch(loginThunk())
+      // dispatch(loginThunk())
     }
   }, [])
 
-  // const oidcConfig = {
-  //   onSignIn: () => {
-  //     // Redirect?
-  //   },
-  //   authority: 'https://oidc.io/oauth',
-  //   clientId: 'cb96a1fa695145b03a603132c093b238',
-  //   redirectUri: 'https://wot-data-client.herokuapp.com/'
-  // };
+  const oidcConfig = {
+    onSignIn: () => {
+      // Redirect?
+    },
+    // https://eu.wargaming.net/id/503047828-ExcisonX
+    authority: 'https://eu.wargaming.net/id/openid/',
+    clientId: 'cb96a1fa695145b03a603132c093b238',
+    redirectUri: 'https://wot-data-client.herokuapp.com/'
+  };
 
   return (
     <div className={classes.root}>
@@ -59,46 +60,46 @@ const App = () => {
       <Button variant="outlined" color="primary" onClick={login}>
         LOGIN
         </Button>
-      {/* <AuthProvider {...oidcConfig}> */}
-        <BrowserRouter>
-          <Switch>
-            <Route path="/clan-details">
-              <Clan />
-            </Route>
-            <Route exact path="/tactics">
-              <Tactics />
-            </Route>
-            <Route path={`/tactics/:tacticId`}>
-              <AddTactic />
-            </Route>
-            <Route exact path="/teams">
-              <Teams />
-            </Route>
-            <Route path={`/teams/:teamId`}>
-              <TeamForm />
-            </Route>
-            <Route path="/add-tournament">
-              <AddTournament />
-            </Route>
-            <Route path="/tournaments">
-              <TournamentSection />
-            </Route>
-            <Route path="/map">
-              <InteractiveMap />
-            </Route>
-            <Route path="/globalMap">
-              <Provinces />
-            </Route>
-            <Route path="/tank-statistics/:playerId">
-              <PlayerVechicleStatistics />
-            </Route>
+      <AuthProvider {...oidcConfig}>
+      <BrowserRouter>
+        <Switch>
+          <Route path="/clan-details">
+            <Clan />
+          </Route>
+          <Route exact path="/tactics">
+            <Tactics />
+          </Route>
+          <Route path={`/tactics/:tacticId`}>
+            <AddTactic />
+          </Route>
+          <Route exact path="/teams">
+            <Teams />
+          </Route>
+          <Route path={`/teams/:teamId`}>
+            <TeamForm />
+          </Route>
+          <Route path="/add-tournament">
+            <AddTournament />
+          </Route>
+          <Route path="/tournaments">
+            <TournamentSection />
+          </Route>
+          <Route path="/map">
+            <InteractiveMap />
+          </Route>
+          <Route path="/globalMap">
+            <Provinces />
+          </Route>
+          <Route path="/tank-statistics/:playerId">
+            <PlayerVechicleStatistics />
+          </Route>
 
-            {/* TODO - latest results dashboards time scaled */}
-            {/* TODO - tasks screen */}
-            {/* TODO - wildcard path */}
-          </Switch>
-        </BrowserRouter>
-      {/* </AuthProvider> */}
+          {/* TODO - latest results dashboards time scaled */}
+          {/* TODO - tasks screen */}
+          {/* TODO - wildcard path */}
+        </Switch>
+      </BrowserRouter>
+      </AuthProvider>
     </div>
   );
 }
