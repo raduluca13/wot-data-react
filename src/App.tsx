@@ -1,5 +1,5 @@
 import { makeStyles, Theme, createStyles, Button } from '@material-ui/core';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 // import logo from './logo.svg';
 import './App.css';
 import Teams from './screens/team/components/Teams';
@@ -15,6 +15,7 @@ import Provinces from './screens/provinces/Provinces';
 import PlayerVechicleStatistics from './screens/clan-details/PlayerVehicleStatistics';
 import { useDispatch, useSelector } from 'react-redux';
 import { authenticationFetchSelector, loginThunk } from './slices/authenticationSlice';
+import { AuthProvider } from 'oidc-react';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -41,17 +42,16 @@ const App = () => {
     if (authenticationFetchStatus === 'idle') {
       dispatch(loginThunk())
     }
-
-    const authObject = {
-      application_id: '',
-      // Layout for mobile applications. Valid values: "page" — Page "popup" — Popup window ...
-      display: '',
-      // If parameter nofollow=1 is passed in, the user is not redirected.URL is returned in response.Default is 0. Min value is 0. Maximum value: 1. ...
-      nofollow: 0,
-      // redirect_uri: ''
-    }
-
   }, [])
+
+  // const oidcConfig = {
+  //   onSignIn: () => {
+  //     // Redirect?
+  //   },
+  //   authority: 'https://oidc.io/oauth',
+  //   clientId: 'cb96a1fa695145b03a603132c093b238',
+  //   redirectUri: 'https://wot-data-client.herokuapp.com/'
+  // };
 
   return (
     <div className={classes.root}>
@@ -59,44 +59,46 @@ const App = () => {
       <Button variant="outlined" color="primary" onClick={login}>
         LOGIN
         </Button>
-      <BrowserRouter>
-        <Switch>
-          <Route path="/clan-details">
-            <Clan />
-          </Route>
-          <Route exact path="/tactics">
-            <Tactics />
-          </Route>
-          <Route path={`/tactics/:tacticId`}>
-            <AddTactic />
-          </Route>
-          <Route exact path="/teams">
-            <Teams />
-          </Route>
-          <Route path={`/teams/:teamId`}>
-            <TeamForm />
-          </Route>
-          <Route path="/add-tournament">
-            <AddTournament />
-          </Route>
-          <Route path="/tournaments">
-            <TournamentSection />
-          </Route>
-          <Route path="/map">
-            <InteractiveMap />
-          </Route>
-          <Route path="/globalMap">
-            <Provinces />
-          </Route>
-          <Route path="/tank-statistics/:playerId">
-            <PlayerVechicleStatistics />
-          </Route>
+      {/* <AuthProvider {...oidcConfig}> */}
+        <BrowserRouter>
+          <Switch>
+            <Route path="/clan-details">
+              <Clan />
+            </Route>
+            <Route exact path="/tactics">
+              <Tactics />
+            </Route>
+            <Route path={`/tactics/:tacticId`}>
+              <AddTactic />
+            </Route>
+            <Route exact path="/teams">
+              <Teams />
+            </Route>
+            <Route path={`/teams/:teamId`}>
+              <TeamForm />
+            </Route>
+            <Route path="/add-tournament">
+              <AddTournament />
+            </Route>
+            <Route path="/tournaments">
+              <TournamentSection />
+            </Route>
+            <Route path="/map">
+              <InteractiveMap />
+            </Route>
+            <Route path="/globalMap">
+              <Provinces />
+            </Route>
+            <Route path="/tank-statistics/:playerId">
+              <PlayerVechicleStatistics />
+            </Route>
 
-          {/* TODO - latest results dashboards time scaled */}
-          {/* TODO - tasks screen */}
-          {/* TODO - wildcard path */}
-        </Switch>
-      </BrowserRouter>
+            {/* TODO - latest results dashboards time scaled */}
+            {/* TODO - tasks screen */}
+            {/* TODO - wildcard path */}
+          </Switch>
+        </BrowserRouter>
+      {/* </AuthProvider> */}
     </div>
   );
 }
