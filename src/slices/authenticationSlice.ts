@@ -24,7 +24,14 @@ const buildLoginUrl: () => string = () => {
 }
 
 export const loginThunk = createAsyncThunk('authentication/login', async () => {
-    const response: Response = await fetch(buildLoginUrl());
+    const response: Response = await fetch(buildLoginUrl(), {
+        headers: {
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Referer": "https://wot-data-client.herokuapp.com",
+            "Origin": "wot-data-client.herokuapp.com"
+        }
+    });
     const json = await response.json();
     return json//.data[PHONENIX_CLAN_ID];
 })
