@@ -50,7 +50,7 @@ export const initSockets = ({ setValue, dispatch }: any) => {
 
 // // events.ts
 export const socketEvents = ({ setValue, dispatch }: any) => {
-    socket.on("connect", (connectData: any) => {
+    socket.on("connect", () => {
         // console.log({ connectData })
         // console.log({ socket })
     })
