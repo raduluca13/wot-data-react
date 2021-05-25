@@ -37,13 +37,10 @@ const App = () => {
   const dispatch = useDispatch();
   const { authenticationFetchStatus, authenticationFetchErrors } = useSelector(authenticationFetchSelector)
 
-  useEffect(() => {
+  const login = useCallback(() => {
     if (authenticationFetchStatus === 'idle') {
       dispatch(loginThunk())
     }
-  }, [])
-
-  const login = useCallback(() => {
 
     const authObject = {
       application_id: '',

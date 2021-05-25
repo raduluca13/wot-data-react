@@ -1,13 +1,12 @@
 import React, { createContext, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
-import io from 'socket.io-client';
 import { MapTool } from './screens/tactics/components/interactive-map/MapTools';
 import { addMarker, clearMarkers, MapMarker, moveCursor, setActiveTool } from './slices/mapInteractionSlice';
 import { changeMap } from './slices/mapsApiSlice';
+require('socket.io-client');
 
 export const NEW_CHAT_MESSAGE_EVENT = "newChatMessage";
 export const WS_BASE = 'wss://wot-data-server.herokuapp.com:5555';
-// export const socket = io.connect(WS_BASE, { query: { roomId: 1 } });
 
 const socket = io(WS_BASE, {
     upgrade: true,
