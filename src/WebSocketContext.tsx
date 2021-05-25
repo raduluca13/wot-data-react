@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { MapTool } from './screens/tactics/components/interactive-map/MapTools';
 import { addMarker, clearMarkers, MapMarker, moveCursor, setActiveTool } from './slices/mapInteractionSlice';
 import { changeMap } from './slices/mapsApiSlice';
-require('socket.io-client');
+import * as io from 'socket.io-client';
 
 export const NEW_CHAT_MESSAGE_EVENT = "newChatMessage";
 export const WS_BASE = 'wss://wot-data-server.herokuapp.com:5555';
