@@ -20,7 +20,7 @@ const initialState: AuthenticationState = {
 }
 
 const buildLoginUrl: () => string = () => {
-    return `${LOGIN_API}?application_id=${APPLICATION_ID}&no_follow=1&redirect_uri=https://localhost:3000`;
+    return `${LOGIN_API}?application_id=${APPLICATION_ID}&no_follow=1&redirect_uri=https://wot-data-client.herokuapp.com/`;
 }
 
 export const loginThunk = createAsyncThunk('authentication/login', async () => {
