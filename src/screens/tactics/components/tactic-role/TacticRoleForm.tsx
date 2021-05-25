@@ -12,10 +12,11 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AddIcon from "@material-ui/icons/Add";
-import { tanksFetchSelector, clanDetailsFetchSelector, fetchClanDetailsThunk, fetchTanksThunk, fetchPhoenixClanDetailsThunk } from '../../../../slices/clanSlice';
+import { clanDetailsFetchSelector, fetchClanDetailsThunk, fetchPhoenixClanDetailsThunk } from '../../../../slices/clanSlice';
 import { mapFetchDetailsSelector, selectedTacticIdSelector, fetchMapsThunk, addTacticRole } from '../../store/tacticsSlice';
 import { PlayerTacticRole } from '../../../../store/types/interfaces/TacticMetadata.interface';
 import { User, Vehicle } from '../../../vehicles/types';
+import { fetchTanksThunk, tanksFetchSelector } from '../../../../slices/tanksSlice';
 
 const createDefaultTacticRole = () => {
     return {

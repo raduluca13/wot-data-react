@@ -1,5 +1,5 @@
-import { makeStyles, Theme, createStyles } from '@material-ui/core';
-import React from 'react';
+import { makeStyles, Theme, createStyles, Button } from '@material-ui/core';
+import React, { useCallback, useEffect } from 'react';
 // import logo from './logo.svg';
 import './App.css';
 import Teams from './screens/team/components/Teams';
@@ -12,6 +12,9 @@ import AddTactic from './screens/tactics/components/AddTactic';
 import Tactics from './screens/tactics/components/Tactics';
 import InteractiveMap from './screens/tactics/components/interactive-map/InteractiveMap';
 import Provinces from './screens/provinces/Provinces';
+import PlayerVechicleStatistics from './screens/clan-details/PlayerVehicleStatistics';
+import { useDispatch, useSelector } from 'react-redux';
+import { authenticationFetchSelector, loginThunk } from './slices/authenticationSlice';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -31,13 +34,34 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const App = () => {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const { authenticationFetchStatus, authenticationFetchErrors } = useSelector(authenticationFetchSelector)
+
+  useEffect(() => {
+    if (authenticationFetchStatus === 'idle') {
+      dispatch(loginThunk())
+    }
+  }, [])
+
+  const login = useCallback(() => {
+
+    const authObject = {
+      application_id: '',
+      // Layout for mobile applications. Valid values: "page" — Page "popup" — Popup window ...
+      display: '',
+      // If parameter nofollow=1 is passed in, the user is not redirected.URL is returned in response.Default is 0. Min value is 0. Maximum value: 1. ...
+      nofollow: 0,
+      // redirect_uri: ''
+    }
+
+  }, [])
 
   return (
     <div className={classes.root}>
-      {/* <h1>Application</h1>
-        <Button variant="outlined" color="primary" onClick={login}>
-          LOGIN
-        </Button> */}
+      <h1>Application</h1>
+      <Button variant="outlined" color="primary" onClick={login}>
+        LOGIN
+        </Button>
       <BrowserRouter>
         <Switch>
           <Route path="/clan-details">
@@ -65,7 +89,10 @@ const App = () => {
             <InteractiveMap />
           </Route>
           <Route path="/globalMap">
-            <Provinces/>
+            <Provinces />
+          </Route>
+          <Route path="/tank-statistics/:playerId">
+            <PlayerVechicleStatistics />
           </Route>
 
           {/* TODO - latest results dashboards time scaled */}

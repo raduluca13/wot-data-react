@@ -29,7 +29,6 @@ export const getComparator = <T>(order: Order, orderBy: keyof T): ComparatorFn<T
 
 
 export const stableSort = function <T>(array: T[], comparator: ComparatorFn<T>) {
-    console.log({ array })
     const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
 
     stabilizedThis.sort((a, b) => {

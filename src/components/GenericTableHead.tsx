@@ -1,13 +1,12 @@
 import { TableHead, TableRow, TableCell, Checkbox, TableSortLabel } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 import React, { ReactNode, useCallback } from "react"
 import { Order } from "../utils/generic-table/genericTableUtils";
 
-interface GenericTableHeadProps<T> {
-    classes: any; //ReturnType<typeof useStyles>;
+export interface GenericTableHeadProps<T> {
+    classes?: any; //ReturnType<typeof useStyles>;
     numSelected: number;
-    onRequestSort: (event: React.MouseEvent<unknown>, property: keyof T) => void;
-    onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onRequestSort?: (event: React.MouseEvent<unknown>, property: keyof T) => void;
+    onSelectAllClick?: (event: React.ChangeEvent<HTMLInputElement>) => void;
     order: Order;
     orderBy: string;
     rowCount: number;
@@ -23,12 +22,15 @@ export interface HeadCell<T> {
 
 
 const GenericTableHead = function <T>(props: GenericTableHeadProps<T> & { children?: ReactNode }) {
-    const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+    const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, headCells } = props;
     const createSortHandler = (property: keyof T) => (event: React.MouseEvent<unknown>) => {
-        onRequestSort(event, property);
+        if (!!onRequestSort) {
+            onRequestSort(event, property)
+        }
     };
 
     const buildCheckboxCell = () => {
+        console.log({ rowCount, headCells }, { numSelected })
         return <TableCell padding="checkbox">
             <Checkbox
                 indeterminate={numSelected > 0 && numSelected < rowCount}
@@ -40,7 +42,7 @@ const GenericTableHead = function <T>(props: GenericTableHeadProps<T> & { childr
     }
 
     const buildCells = () => {
-        return props.headCells.map((headCell) => (
+        return headCells.map((headCell) => (
             <TableCell
                 key={headCell.label}
                 align={headCell.numeric ? 'right' : 'left'}

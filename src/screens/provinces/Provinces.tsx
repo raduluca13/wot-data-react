@@ -1,24 +1,16 @@
-import { createStyles, makeStyles, Theme, Tooltip, Typography, withStyles } from '@material-ui/core';
-import React, { ChangeEvent, MouseEvent, useCallback, useEffect, useState } from 'react'
+import { createStyles, makeStyles, Theme, Tooltip, withStyles } from '@material-ui/core';
+import React, { ChangeEvent, MouseEvent, MouseEventHandler, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProvincesThunk, globalMapStateSelector, Province } from '../../slices/globalMapSlice';
-import ProvinceComponent from './ProvinceComponent';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import { getComparator, Order, stableSort } from '../../utils/generic-table/genericTableUtils';
-import GenericTableToolbar from '../../components/GenericTableToolbar';
-import GenericTableHead, { HeadCell } from '../../components/GenericTableHead';
-import Button from '@material-ui/core/Button';
 import CompetitorsTooltip from './CompetitorsTooltip';
-import { clanListFetchSelector, fetchClanListThunk } from '../../slices/clanSlice';
+import GenericTable, { GenericTablePaginationProps } from '../../components/GenericTable';
+import { GenericTableHeadProps, HeadCell } from '../../components/GenericTableHead'
+import { GenericTableBodyProps } from '../../components/GenericTableBody'
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -52,25 +44,25 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 
-type ProvinceKeys = Array<keyof Province>
-function getKeys<T>(someObj: T): string[] {
-    return Object.keys(someObj) as ProvinceKeys
+// type ProvinceKeys = keyof Province[]
+function getKeys<T>(someObj: T): (keyof T)[] {
+    return Object.keys(someObj) as (keyof T)[]
 }
 
 const Provinces = () => {
     const dispatch = useDispatch()
     const classes = useStyles()
-    const columns = getKeys<Province>(new Province()) as ProvinceKeys
+    const columns: (keyof Province)[] = getKeys<Province>(new Province())
 
     const [order, setOrder] = useState<Order>('asc');
     const [orderBy, setOrderBy] = useState<keyof Province>('prime_time');
-    const [selected, setSelected] = useState<string[]>([]);
+    const [selected, setSelected] = useState<number[]>([]);
     const [page, setPage] = useState(0);
     const [dense, setDense] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(100);
 
     const buildProvinceHeadCells = () => {
-        return columns.map(column => {
+        return columns.map((column: keyof Province) => {
             return {
                 disablePadding: false,
                 id: column,
@@ -90,18 +82,20 @@ const Provinces = () => {
         },
     }))(Tooltip);
 
-    const buildRowCells = (labelId: string, row: Province): (value: keyof Province, index: number, array: (keyof Province)[]) => JSX.Element => {
+    const provinceRowCellsMapper = (labelId: string, row: Province): (value: keyof Province, index: number, array: (keyof Province)[]) => JSX.Element => {
         return column => {
-            if (column === "competitors" || column === "attackers" && row[column].length > 0) {
+            if ((column === "competitors" || column === "attackers") && row[column].length > 0) {
                 return <HtmlTooltip
                     placement="right"
                     arrow
                     title={
-                        <CompetitorsTooltip clanIds={row[column]} />
+                        <CompetitorsTooltip
+                            clanIds={row[column]}
+                            provinceId={row["province_id"]} />
                     }
                 >
                     <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row[column].join("\r\n")}
+                        {row[column].length}
                     </TableCell>
                 </HtmlTooltip>
             }
@@ -110,7 +104,9 @@ const Provinces = () => {
                     arrow
                     placement="right"
                     title={
-                        <CompetitorsTooltip clanIds={[row[column]]} />
+                        <CompetitorsTooltip
+                            clanIds={[row[column]]}
+                            provinceId={row["province_id"]} />
                     }
                 >
                     <TableCell component="th" id={labelId} scope="row" padding="none">
@@ -124,7 +120,9 @@ const Provinces = () => {
                     {row[column].split("T")[1]}
                 </TableCell>
             }
-            if (column === "active_battles") { return <TableCell></TableCell> }
+            if (column === "active_battles") {
+                return <TableCell></TableCell>
+            }
 
             return <TableCell component="th" id={labelId} scope="row" padding="none">
                 {row[column]}
@@ -135,15 +133,10 @@ const Provinces = () => {
     const { provincesFetchStatus, provincesFetchErrors, provinces } = useSelector(globalMapStateSelector)
     const [provinceTableHeadCells, setProvinceTableHeadCells] = useState(buildProvinceHeadCells() as HeadCell<Province>[])
     const [localProvinces, setLocalProvinces] = useState([] as Province[])
-    const { clanList, clanListFetchStatus, clanListFetchErrors } = useSelector(clanListFetchSelector)
     // only first time
     useEffect(() => {
         if (provincesFetchStatus === 'idle') {
             dispatch(fetchProvincesThunk())
-        }
-
-        if (clanListFetchStatus === 'idle') {
-            dispatch(fetchClanListThunk())
         }
     }, [])
 
@@ -151,9 +144,7 @@ const Provinces = () => {
         if (provinces && provinces.length > 0) {
             setLocalProvinces(provinces)
         }
-
-        console.log({ clanList })
-    }, [provinces, clanList])
+    }, [provinces])
 
 
     // -------------TBD-------------
@@ -165,17 +156,18 @@ const Provinces = () => {
     };
     const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            const newSelecteds = provinces.map((province) => province.province_name);
-            setSelected(newSelecteds);
+            // const newSelecteds = provinces.map((province) => province.province_name);
+            setSelected(Array.from({ length: provinces.length }, (x, i) => i));
             return;
         }
         setSelected([]);
     };
-    const handleClick = useCallback((event: MouseEvent<unknown>, name: string) => {
-        const selectedIndex = selected.indexOf(name);
-        console.log({ selectedIndex })
+
+    const handleRowClick = (index: number) => {
+        const selectedIndex = selected.indexOf(index);
+
         if (selectedIndex === -1) {
-            setSelected([...selected, name])
+            setSelected([...selected, index])
             return;
         }
 
@@ -193,97 +185,72 @@ const Provinces = () => {
                 ...selected.slice(selectedIndex + 1),
             ])
         }
-    }, [selected]);
-    const handleChangePage = useCallback((event: unknown, newPage: number) => {
-        console.log({ event }, { newPage })
+    }
+
+    const handleChangePage = useCallback((event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
         setPage(newPage);
     }, [page]);
+
+    const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setDense(event.target.checked);
+    };
+
+    const emptyRows = useCallback(() => rowsPerPage - Math.min(rowsPerPage, provinces.length - page * rowsPerPage), [rowsPerPage, provinces, page]);
+    // -------------END TBD-------------
+
+    const buildTableWithPagination = () => {
+        if (localProvinces.length > 0) {
+            const tableRowsSorted = stableSort<Province>(localProvinces, getComparator<Province>(order, orderBy))
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+
+            const provinceTableProps = {
+                classes: classes as ReturnType<typeof useStyles>,
+                paginationEnabled: true,
+                headerProps: {
+                    headCells: provinceTableHeadCells,
+                    classes: classes,
+                    numSelected: selected.length,
+                    order: order,
+                    orderBy: orderBy,
+                    onSelectAllClick: handleSelectAllClick,
+                    onRequestSort: handleRequestSort,
+                    rowCount: localProvinces.length,
+                } as GenericTableHeadProps<Province>,
+                bodyProps: {
+                    rows: tableRowsSorted,
+                    columns: columns,
+                    selectedRows: selected,
+                    rowCellsMapper: provinceRowCellsMapper,
+                    onRowClick: handleRowClick
+                } as GenericTableBodyProps<Province>,
+                paginationProps: {
+                    rowsPerPageOptions: [5, 10, 25, 50, 100],
+                    component: "div",
+                    count: provinces.length ?? 0,
+                    rowsPerPage: rowsPerPage,
+                    page: page,
+                    onChangePage: handleChangePage,
+                    onChangeRowsPerPage: handleChangeRowsPerPage
+                } as GenericTablePaginationProps<Province>,
+                toolbarProps: {
+                    numSelected: selected.length,
+                    title: 'Provinces'
+                }
+            }
+            return <GenericTable<Province> {...provinceTableProps} />
+        }
+
+    }
+
     const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     }, [rowsPerPage, page]);
-    const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setDense(event.target.checked);
-    };
-    const isSelected = useCallback((name: string) => selected.indexOf(name) !== -1, [selected]);
-    const emptyRows = useCallback(() => rowsPerPage - Math.min(rowsPerPage, provinces.length - page * rowsPerPage), [rowsPerPage, provinces, page]);
-    // -------------END TBD-------------
 
-    const buildTableHead = () => {
-        return <GenericTableHead<Province>
-            headCells={provinceTableHeadCells}
-            classes={classes}
-            numSelected={selected.length}
-            order={order}
-            orderBy={orderBy}
-            onSelectAllClick={handleSelectAllClick}
-            onRequestSort={handleRequestSort}
-            rowCount={localProvinces.length}
-        />
-    }
-
-    const buildTableBody = () => {
-        console.log({ page }, { rowsPerPage }, { selected }, { localProvinces })
-        if (localProvinces.length > 0) {
-            return stableSort<Province>(localProvinces, getComparator<Province>(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                    const isItemSelected = isSelected(row.province_name);
-                    const labelId = `enhanced-table-checkbox-${index}`;
-
-                    return (
-                        <TableRow
-                            hover
-                            onClick={(event) => handleClick(event, row.province_name)}
-                            role="checkbox"
-                            aria-checked={isItemSelected}
-                            tabIndex={-1}
-                            key={row.province_id}
-                            selected={isItemSelected}
-                        >
-                            <TableCell padding="checkbox">
-                                <Checkbox
-                                    checked={isItemSelected}
-                                    inputProps={{ 'aria-labelledby': labelId }}
-                                />
-                            </TableCell>
-                            {columns.map(buildRowCells(labelId, row))}
-                        </TableRow>
-                    );
-                })
-        }
-    }
 
     return <div className={classes.provincesContainer}>
         <Paper className={classes.paper}>
-            <GenericTableToolbar numSelected={selected.length} />
-            <TableContainer>
-                <Table
-                    className={classes.table}
-                    aria-labelledby="tableTitle"
-                    size={dense ? 'small' : 'medium'}
-                    aria-label="enhanced table"
-                >
-                    {buildTableHead()}
-                    <TableBody>
-                        {buildTableBody()}
-                        {emptyRows() > 0 && (
-                            <TableRow style={{ height: (dense ? 33 : 53) * emptyRows() }}>
-                                <TableCell colSpan={6} />
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25, 50, 100]}
-                component="div"
-                count={provinces.length ?? 0}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
+            {buildTableWithPagination()}
         </Paper>
         <FormControlLabel
             control={<Switch checked={dense} onChange={handleChangeDense} />}

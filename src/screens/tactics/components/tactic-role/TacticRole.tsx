@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
 import RemoveIcon from "@material-ui/icons/Remove";
 import EditIcon from "@material-ui/icons/Edit";
 import { Button, createStyles, makeStyles, Theme } from '@material-ui/core';
-import { clanDetailsFetchSelector, clanMembersSelector, fetchClanDetailsThunk, fetchPhoenixClanDetailsThunk, tanksFetchSelector } from '../../../../slices/clanSlice';
+import { clanDetailsFetchSelector, clanMembersSelector, fetchPhoenixClanDetailsThunk } from '../../../../slices/clanSlice';
 import { PlayerTacticRole } from '../../../../store/types/interfaces/TacticMetadata.interface';
 import { getProperty } from '../../../../slices/teamSlice';
 import { DragSource, DragSourceConnector, DragSourceMonitor, DragSourceSpec, useDrag, useDrop } from 'react-dnd';
 import { removeTacticRole } from '../../store/tacticsSlice';
+import { tanksFetchSelector } from '../../../../slices/tanksSlice';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -45,7 +45,7 @@ const TacticRole = (props: TacticRoleProps) => {
     const [name, setName] = useState("")
     const [tank, setTank] = useState("")
 
-    const onEditClick = useCallback(() => {}, [tacticRole, tank, name]);
+    const onEditClick = useCallback(() => { }, [tacticRole, tank, name]);
 
     const onRemoveClick = useCallback(() => {
         dispatch(removeTacticRole(tacticRole))

@@ -74,18 +74,15 @@ export const mapInteractionSlice = createSlice({
             saveMapState(state);
         },
         moveCursor: (state, action: PayloadAction<Point>) => {
-            console.log("dispatching cursor position:", action.payload)
             const point = action.payload
             // if (Math.abs(state.cursorPosition.x - point.x) > 10 || Math.abs(state.cursorPosition.y - point.y) > 10) {
                 state.cursorPosition = point
             // }
         },
         addMarker: (state, action: PayloadAction<MapMarker>) => {
-            console.log("adding marker", action.payload)
             state.markers.push(action.payload)
         },
         clearMarkers: (state) => {
-            console.log("clearing markers")
             state.markers = [];
         },
         setActiveTool: (state, action: PayloadAction<MapTool>) => {

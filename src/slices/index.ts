@@ -8,6 +8,9 @@ import tournamentReducer from './tournamentSlice'
 import mapInteractionReducer from './mapInteractionSlice'
 import mapsApiReducer from './mapsApiSlice'
 import globalMapReducer from './globalMapSlice'
+import tanksReducer from './tanksSlice'
+import tankStatisticsReducer from './tankStastisticsSlice'
+import authenticationReducer from './authenticationSlice'
 
 const rootReducer = combineReducers({
   counterState: counterReducer,
@@ -18,7 +21,10 @@ const rootReducer = combineReducers({
   tournamentState: tournamentReducer,
   mapInteractionState: mapInteractionReducer,
   mapsApiState: mapsApiReducer,
-  globalMapState: globalMapReducer
+  globalMapState: globalMapReducer,
+  tanksState: tanksReducer,
+  tankStatisticsState: tankStatisticsReducer,
+  authenticationState: authenticationReducer
 })
 
 export type BaseId = {

@@ -12,10 +12,10 @@ import { buildParamStr } from '../utils/url/urlUtils';
 const CLAN_DETAILS_API = "https://api.worldoftanks.eu/wot/clans/info/"
 const CLAN_LIST_API = "https://api.worldoftanks.eu/wot/clans/list/"
 const PHONENIX_CLAN_ID = 500061648;
-const TANKS_API = 'https://api.worldoftanks.eu/wot/encyclopedia/vehicles/';
 
 export interface ClanInSearch {
     clanId: number,
+    provinceIds: string[],
     clanDetails: ClanDetails,
     clanDetailsFetchErrors: boolean,
     clanDetailsFetchStatus: FetchStatus,
@@ -25,27 +25,17 @@ interface ClanState {
     clanDetailsFetchStatus: FetchStatus,
     clanDetailsFetchErrors: boolean,
     clanDetails: ClanDetails,
-    // TODO - move to new slice for tanks
-    tankFetchStatus: FetchStatus,
-    tankFetchErrors: boolean,
-    tanks: VehicleResponse,
     clansInSearch: ClanInSearch[]
     clanList: any[],
     clanListFetchErrors: boolean,
     clanListFetchStatus: FetchStatus
 }
 
-interface VehicleResponse {
-    [key: number]: Vehicle
-}
 
 const initialState: ClanState = {
     clanDetailsFetchStatus: 'idle',
     clanDetailsFetchErrors: false,
     clanDetails: ({} as any) as ClanDetails,
-    tankFetchStatus: 'idle',
-    tankFetchErrors: false,
-    tanks: [],
     clansInSearch: [],
     clanList: [],
     clanListFetchErrors: false,
@@ -57,13 +47,7 @@ const buildClansQueryUrl: (url: string, params: any) => string = (url, params: a
     return `${url}?application_id=${APPLICATION_ID}&${queryParamStr}`;
 }
 
-const buildTanksQueryUrl: (url: string, params: any) => string = (url, params: any) => {
-    const queryParamStr = buildParamStr(params);
-    return `${url}?application_id=${APPLICATION_ID}&${queryParamStr}`
-}
-
 const phoenixUrl = buildClansQueryUrl(CLAN_DETAILS_API, { clan_id: PHONENIX_CLAN_ID })
-const tanksUrl = buildTanksQueryUrl(TANKS_API, { tier: 10 })
 const clanListUrl = buildClansQueryUrl(CLAN_LIST_API, {})
 
 export const fetchPhoenixClanDetailsThunk = createAsyncThunk('clanDetails/fetchClanDetails', async () => {
@@ -81,35 +65,31 @@ export const fetchClanListThunk = createAsyncThunk('clanList/fetchClanList', asy
 export const fetchClanDetailsThunk = createAsyncThunk(
     'clanDetails/fetchClanDetailsById',
     async (clanId: number) => {
-        console.log("fetching ", clanId)
         const response: Response = await fetch(buildClansQueryUrl(CLAN_DETAILS_API, { clan_id: clanId }));
-        console.log({ response })
         const json = await response.json();
-        console.log({ json }, { clanId })
         return json.data[clanId];
-    })
-
-export const fetchTanksThunk = createAsyncThunk('tanks/fetchTanks', async () => {
-    const response = await fetch(tanksUrl);
-    const json = await response.json();
-    return json.data as Map<number, Vehicle>;
-})
+    }
+)
 
 export const clanSlice = createSlice({
     name: 'clan',
     initialState,
     reducers: {
-        setClansInSearch: (state, action: PayloadAction<ClanInSearch[]>) => {
-            state.clansInSearch = action.payload
+        addClanInSearch: (state, action: PayloadAction<ClanInSearch>) => {
+            const clanInSearch = action.payload;
+            state.clansInSearch.push({ ...clanInSearch })
+        },
+        addProvinceToClanInSearch: (state, action: PayloadAction<{ provinceId: string, clanId: number }>) => {
+            const { provinceId, clanId } = action.payload
+            const clanIndex = state.clansInSearch.findIndex(clanInSearch => clanInSearch.clanId === clanId)
+            state.clansInSearch[clanIndex].provinceIds.push(provinceId)
         }
     },
     extraReducers: {
         ['clanDetails/fetchClanDetails/fulfilled']: (state, action: PayloadAction<ClanDetails>) => {
-            if (!!action.payload) {
-                state.clanDetails = action.payload;
-                state.clanDetailsFetchStatus = 'succeeded';
-                state.clanDetailsFetchErrors = false;
-            }
+            state.clanDetails = action.payload;
+            state.clanDetailsFetchStatus = 'succeeded';
+            state.clanDetailsFetchErrors = false;
         },
         ['clanDetails/fetchClanDetails/rejected']: (state, action) => {
             state.clanDetailsFetchStatus = 'failed'
@@ -119,37 +99,19 @@ export const clanSlice = createSlice({
             state.clanDetailsFetchStatus = 'loading';
         },
         ['clanDetails/fetchClanDetailsById/rejected']: (state, action) => {
-            if (!!action.payload) {
-                const clanInSearchIndex = state.clansInSearch.findIndex(clanInSearch => clanInSearch.clanId === action.payload.clan_id)
-                state.clansInSearch[clanInSearchIndex].clanDetailsFetchStatus = 'failed'
-                state.clansInSearch[clanInSearchIndex].clanDetailsFetchErrors = true
-            }
+            const clanInSearchIndex = state.clansInSearch.findIndex(clanInSearch => clanInSearch.clanId === action.payload.clan_id)
+            state.clansInSearch[clanInSearchIndex].clanDetailsFetchStatus = 'failed'
+            state.clansInSearch[clanInSearchIndex].clanDetailsFetchErrors = true
         },
         ['clanDetails/fetchClanDetailsById/pending']: (state, action) => {
-            if (!!action.payload) {
-                const clanInSearchIndex = state.clansInSearch.findIndex(clanInSearch => clanInSearch.clanId === action.payload.clan_id)
-                state.clansInSearch[clanInSearchIndex].clanDetailsFetchStatus = 'loading'
-            }
+            const clanInSearchIndex = state.clansInSearch.findIndex(clanInSearch => clanInSearch.clanId === action.payload.clan_id)
+            state.clansInSearch[clanInSearchIndex].clanDetailsFetchStatus = 'loading'
         },
         ['clanDetails/fetchClanDetailsById/fulfilled']: (state, action: PayloadAction<ClanDetails>) => {
-            if (!!action.payload) {
-                const clanInSearchIndex = state.clansInSearch.findIndex(clanInSearch => clanInSearch.clanId === action.payload.clan_id)
-                state.clansInSearch[clanInSearchIndex].clanDetailsFetchStatus = 'succeeded'
-                state.clansInSearch[clanInSearchIndex].clanDetailsFetchErrors = false
-                state.clansInSearch[clanInSearchIndex].clanDetails = { ...action.payload }
-            }
-        },
-        ['tanks/fetchTanks/fulfilled']: (state, action) => {
-            state.tankFetchStatus = 'succeeded'
-            const payload = action.payload as VehicleResponse;
-            state.tanks = payload;
-        },
-        ['tanks/fetchTanks/rejected']: (state, action) => {
-            state.tankFetchStatus = 'failed'
-            state.tankFetchErrors = true;
-        },
-        ['tanks/fetchTanks/pending']: (state, action) => {
-            state.tankFetchStatus = 'loading'
+            const clanInSearchIndex = state.clansInSearch.findIndex(clanInSearch => clanInSearch.clanId === action.payload.clan_id)
+            state.clansInSearch[clanInSearchIndex].clanDetailsFetchStatus = 'succeeded'
+            state.clansInSearch[clanInSearchIndex].clanDetailsFetchErrors = false
+            state.clansInSearch[clanInSearchIndex].clanDetails = { ...action.payload }
         },
         ['clanList/fetchClanList/fulfilled']: (state, action) => {
             state.clanListFetchStatus = 'succeeded'
@@ -166,22 +128,8 @@ export const clanSlice = createSlice({
     }
 });
 
-// export const { } = clanSlice.actions;
-
-
 export const clanStateSelector = (state: RootState) => state.clanState;
 export const clanDetailsSelector = (state: RootState) => state.clanState.clanDetails;
-
-export const tanksFetchSelector = createSelector(
-    [clanStateSelector],
-    (clanState) => {
-        return {
-            tanksFetchStatus: clanState.tankFetchStatus,
-            tanksFetchErrors: clanState.tankFetchErrors,
-            tanks: clanState.tanks as VehicleResponse
-        }
-    }
-)
 
 export const clanDetailsFetchSelector = createSelector(
     [clanStateSelector],
@@ -216,6 +164,6 @@ export const clanMembersSelector = createSelector(
 
 )
 
-export const { setClansInSearch } = clanSlice.actions
+export const { addClanInSearch, addProvinceToClanInSearch } = clanSlice.actions
 
 export default clanSlice.reducer;
