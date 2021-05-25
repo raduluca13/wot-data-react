@@ -25,6 +25,7 @@ const buildLoginUrl: () => string = () => {
 
 export const loginThunk = createAsyncThunk('authentication/login', async () => {
     const response: Response = await fetch(buildLoginUrl(), {
+        method: "POST",
         headers: {
             "Access-Control-Request-Method": "POST",
             "Access-Control-Request-Headers": "authorization,content-type",
