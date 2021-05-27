@@ -22,21 +22,26 @@ const TacticRoles = (props: ReturnType<typeof collect>) => {
     const { connectDropTarget } = props;
     const tacticRoles = useSelector(tacticRolesSelector);
     const [selectedRole, setSelectedRole] = React.useState(0);
-
+    console.log({ tacticRoles })
     const changeSelectedRole = (event: any) => {
         setSelectedRole(+event.target.value);
     };
 
-    const renderTacticRoles = (tacticRole: PlayerTacticRole) => <div className={classes.tacticRoleListItem}>
-        <Radio
-            checked={selectedRole === tacticRole.index}
-            onChange={changeSelectedRole}
-            value={tacticRole.index}
-            name="radio-button-demo"
-            inputProps={{ 'aria-label': 'A' }}
-        />
-        <TacticRole key={tacticRole.index} {...tacticRole} />
-    </div>
+    const renderTacticRoles = (tacticRole: PlayerTacticRole) => {
+        return (
+            <div key={'tacticRoleContainer' + tacticRole.index} className={classes.tacticRoleListItem}>
+                <Radio
+                    key={'roleRadio' + tacticRole.playerId}
+                    checked={selectedRole === tacticRole.index}
+                    onChange={changeSelectedRole}
+                    value={tacticRole.index}
+                    name="radio-button-demo"
+                    inputProps={{ 'aria-label': 'A' }}
+                />
+                <TacticRole key={'role' + tacticRole.playerId} {...tacticRole} />
+            </div>
+        )
+    }
 
     return connectDropTarget(
         <div className="tactic-roles">
