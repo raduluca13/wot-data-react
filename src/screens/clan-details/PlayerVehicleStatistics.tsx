@@ -41,12 +41,10 @@ const PlayerVechicleStatistics = () => {
             return <p>Loading tanks</p>;
         }
 
-
         // const tankStatisticsReducer = (accumulator: Map<any, any>, value: any) => {
         //     map.set(value[0], value[1])
         //     return accumulator
         // }
-
         const statsMap = new Map([]);
 
         const tier10Statistics = playerTanksStatistics.tankStatistics

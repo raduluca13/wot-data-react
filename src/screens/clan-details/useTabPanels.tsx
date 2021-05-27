@@ -61,7 +61,7 @@ const useTabPanels = (props: { selectedTab: TabController, tabsMap: Map<string, 
         const statValue = value.get(selectedTab.key)
         headerCellColumns = Object.keys(statValue) // redundant to assign so many times..
         console.log(Object.keys(statValue))
-        console.log(headerCellColumns)
+        console.log({ headerCellColumns })
         tabMap.set(key, statValue)
     })
 

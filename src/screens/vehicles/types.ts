@@ -790,6 +790,21 @@ export type Statistic = GlobalMapTankStatistics |
 export type StatisticKey = keyof Statistic
 
 export class TankStatistics {
+    constructor() {
+        this.all = new OverallTankStatistics()
+        this.clan = new ClanBattlesTankStatistics();
+        this.company = new TankCompanyBattlesTankStatistics()
+        this.fallout = new FalloutBattlesTankStatistics();
+        this.epic = new EpicBattlesTankStatistics();
+        this.random = new RandomBattlesTankStatistics();
+        this.ranked = new RankedBattlesTankStatistics();
+        this.ranked_battles = new RankedBattlesTankStatistics()
+        this.stronghold_defense = new StrongholdBattlesTankStatistics();
+        this.stronghold_skirmish = new SkirmishBattlesTankStatistics();
+        this.team = new TeamBattlesTankStatistics();
+        this.regular_team = new RegularTeamTankStatistics();
+    }
+
     account_id!: number;
     // Player account ID
 

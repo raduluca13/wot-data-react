@@ -13,15 +13,33 @@ import { tanksFetchSelector } from '../../../../slices/tanksSlice';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        tacticRole: {
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center"
+        tacticRoleContainer: {
+            width: '90%',
+            display: "inline-flex",
+            gap: '10%',
+            alignItems: "center",
+            justifyContent: 'space-between'
         },
-        actions: {
-            display: "flex",
-            flexDirection: "row"
+        tacticRoleDetails: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2,1fr)',
+            alignItems: 'center',
+            gap: '10%',
+            width: '80%'
+        },
+        tacticRoleActions: {
+            display: "inline-flex",
+            gap: '10%'
+        },
+        button: {
+            minWidth: '1rem',
+            height: '1.5rem'
+        },
+        wordWrap: {
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: '100px'
         }
     })
 );
@@ -73,15 +91,17 @@ const TacticRole = (props: TacticRoleProps) => {
     }, [tacticRole, clanDetailsFetchStatus, tanksFetchStatus, clanMembers])
 
     return connectDragSource(
-        <div className={classes.tacticRole}>
-            <p>{name}</p>
-            <p>{tank}</p>
+        <div className={classes.tacticRoleContainer}>
+            <div className={classes.tacticRoleDetails}>
+                <p className={classes.wordWrap}>{name}</p>
+                <p className={classes.wordWrap}>{tank}</p>
+            </div>
             {/* some button actions */}
-            <div className={classes.actions}>
-                <Button variant="outlined" color="secondary" onClick={onEditClick}>
+            <div className={classes.tacticRoleActions}>
+                <Button className={classes.button} variant="outlined" color="secondary" onClick={onEditClick}>
                     <EditIcon />
                 </Button>
-                <Button variant="outlined" color="secondary" onClick={onRemoveClick}>
+                <Button className={classes.button} variant="outlined" color="secondary" onClick={onRemoveClick}>
                     <RemoveIcon />
                 </Button>
             </div>

@@ -10,7 +10,6 @@ export const LOGIN_API = 'http://api.worldoftanks.eu/wot/auth/login/'
 
 
 export type LoginResponseKey = keyof LoginResponse;
-
 export interface LoginResponse {
     // ok — successful authentication
     status?: string | null,
@@ -105,5 +104,4 @@ export const authenticationFetchSelector = createSelector(
 
 
 export const { setUserLoggedIn } = authenticationSlice.actions
-
 export default authenticationSlice.reducer;

@@ -1,3 +1,4 @@
+import { createStyles, makeStyles, Radio, Theme } from '@material-ui/core';
 import React from 'react';
 import { DropTarget, DropTargetConnector, DropTargetMonitor, DropTargetSpec } from 'react-dnd';
 import { useSelector } from 'react-redux';
@@ -5,11 +6,37 @@ import { PlayerTacticRole } from '../../../../store/types/interfaces/TacticMetad
 import { tacticRolesSelector } from '../../store/tacticsSlice';
 import TacticRole from './TacticRole';
 
-
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        tacticRoleListItem: {
+            display: 'flex',
+            alignItems: 'center'
+        },
+        tacticRoleRadio: {
+            width: '5%'
+        }
+    })
+)
 const TacticRoles = (props: ReturnType<typeof collect>) => {
-    const tacticRoles = useSelector(tacticRolesSelector);
+    const classes = useStyles();
     const { connectDropTarget } = props;
-    const renderTacticRoles = (tacticRole: PlayerTacticRole) => <TacticRole key={tacticRole.index} {...tacticRole} />
+    const tacticRoles = useSelector(tacticRolesSelector);
+    const [selectedRole, setSelectedRole] = React.useState(0);
+
+    const changeSelectedRole = (event: any) => {
+        setSelectedRole(+event.target.value);
+    };
+
+    const renderTacticRoles = (tacticRole: PlayerTacticRole) => <div className={classes.tacticRoleListItem}>
+        <Radio
+            checked={selectedRole === tacticRole.index}
+            onChange={changeSelectedRole}
+            value={tacticRole.index}
+            name="radio-button-demo"
+            inputProps={{ 'aria-label': 'A' }}
+        />
+        <TacticRole key={tacticRole.index} {...tacticRole} />
+    </div>
 
     return connectDropTarget(
         <div className="tactic-roles">

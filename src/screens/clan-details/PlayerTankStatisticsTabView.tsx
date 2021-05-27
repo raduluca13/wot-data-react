@@ -7,7 +7,7 @@ import {
 } from "../vehicles/types"
 import useTabPanels, { TankAndStatistics } from "./useTabPanels";
 import { TabController } from "./useTabPanels";
-import { getKeys } from "./VehicleStatisticsTable";
+import { getEntries, getKeys } from "./VehicleStatisticsTable";
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -37,6 +37,7 @@ const PlayerTankStatisticsTabView = (props: PlayerTankStatisticsTabViewProps) =>
     const classes = useStyles();
     const { tabsMap } = props
     const statisticKeys = getKeys<TankStatistics>(new TankStatistics());
+    const statisticEntries = getEntries<TankStatistics>(new TankStatistics())
     const [selectedTab, setSelectedTab] = React.useState({ index: 0, key: 'account_id' } as TabController);
 
     const handleChange = (event: React.ChangeEvent<{}>, newSelectedTab: number) => {
@@ -44,9 +45,12 @@ const PlayerTankStatisticsTabView = (props: PlayerTankStatisticsTabViewProps) =>
         setSelectedTab(currentSelectedTab);
     };
 
-    const tabs = statisticKeys.map((statisticKey, index) => {
-        const tabKey = [statisticKey, index].join('_')
-        return <Tab key={tabKey} label={statisticKey} {...a11yProps(index)} />
+    const tabs = statisticEntries.map((statisticEntry, index) => {
+        if (typeof statisticEntry[1] == 'object') {
+            const tabKey = [statisticEntry[0], index].join('_')
+            return <Tab key={tabKey} label={statisticEntry[0]} {...a11yProps(index)} />
+
+        }
     })
 
     const tabPanels = useTabPanels({ selectedTab, tabsMap });

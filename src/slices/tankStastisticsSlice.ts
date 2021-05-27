@@ -77,14 +77,12 @@ export const tankStatisticsSlice = createSlice({
     }
 });
 
-export default tankStatisticsSlice.reducer;
-
-export const { addPlayerTankStatistics } = tankStatisticsSlice.actions
-
 
 export const tankStatisticsStateSelector = (state: RootState) => state.tankStatisticsState;
-
 export const playerTankStatisticsSelector = createSelector(
     [tankStatisticsStateSelector],
     (tankStatisticsState) => tankStatisticsState.playerTankStatistics
 )
+
+export const { addPlayerTankStatistics } = tankStatisticsSlice.actions
+export default tankStatisticsSlice.reducer;

@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { authenticationFetchSelector, buildLoginUrl, loginThunk } from './slices/authenticationSlice';
 import Login from './components/Login';
 import Menu from './components/Menu';
+import Profile from './screens/profile/Profile';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -39,20 +40,19 @@ const App = () => {
   const dispatch = useDispatch();
   const { userLoggedIn, authenticationFetchStatus, authenticationFetchErrors } = useSelector(authenticationFetchSelector);
 
-  // const params = useParams();
+  // DEFAULT LOGIN WHEN ENTERING APP
+  // useEffect(() => {
+  //   const currentAccessToken = userLoggedIn.access_token
 
-  useEffect(() => {
-    const currentAccessToken = userLoggedIn.access_token
+  //   if (authenticationFetchStatus === "succeeded" && !currentAccessToken) {
+  //     const redirection = buildLoginUrl()
+  //     window.location.href = redirection
+  //   }
 
-    if (authenticationFetchStatus === "succeeded" && !currentAccessToken) {
-      const redirection = buildLoginUrl()
-      window.location.href = redirection
-    }
-
-    if (authenticationFetchStatus === 'idle' && !currentAccessToken) {
-      dispatch(loginThunk())
-    }
-  }, [authenticationFetchStatus, userLoggedIn])
+  //   if (authenticationFetchStatus === 'idle' && !currentAccessToken) {
+  //     dispatch(loginThunk())
+  //   }
+  // }, [authenticationFetchStatus, userLoggedIn])
 
   return (
     <div className={classes.root}>
@@ -85,6 +85,9 @@ const App = () => {
           </Route>
           <Route path="/globalMap">
             <Provinces />
+          </Route>
+          <Route path="/profile">
+            <Profile />
           </Route>
           <Route path="/tank-statistics/:playerId">
             <PlayerVechicleStatistics />
