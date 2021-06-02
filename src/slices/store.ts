@@ -4,6 +4,14 @@ import rootReducer, { RootState } from '.';
 
 const store = configureStore({
   reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      // thunk: {
+      //   extraArgument: myCustomApiService,
+      // },
+      immutableCheck: false,
+      serializableCheck: false,
+    }),
   // preloadedState: persistedState
 });
 
