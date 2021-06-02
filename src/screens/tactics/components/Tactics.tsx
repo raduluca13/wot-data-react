@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Theme, createStyles, Button } from '@material-ui/core';
 import TacticCard from './TacticCard';

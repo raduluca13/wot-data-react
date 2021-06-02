@@ -163,28 +163,22 @@ const Provinces = () => {
         setSelected([]);
     };
 
-    const handleRowClick = (index: number) => {
-        const selectedIndex = selected.indexOf(index);
-
+    const handleRowClick = (index: number, page: number, rowsPerPage: number) => {
+        const paginatedItemIndex = page * rowsPerPage + index
+        const selectedIndex = selected.indexOf(paginatedItemIndex);
         if (selectedIndex === -1) {
-            setSelected([...selected, index])
+            setSelected(selected => {
+                const newSelected = [...selected, paginatedItemIndex]
+                return newSelected
+            })
             return;
         }
 
-        if (selectedIndex === 0) {
-            setSelected([...selected.slice(1)]);
-            return;
-        }
-        if (selectedIndex === selected.length - 1) {
-            setSelected([...selected.slice(0, -1)]);
-            return;
-        }
-        if (selectedIndex > 0) {
-            setSelected([
-                ...selected.slice(0, selectedIndex),
-                ...selected.slice(selectedIndex + 1),
-            ])
-        }
+        setSelected(selected => {
+            const newSelected = [...selected]
+            newSelected.splice(selectedIndex, 1)
+            return newSelected
+        })
     }
 
     const handleChangePage = useCallback((event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
@@ -219,7 +213,9 @@ const Provinces = () => {
                 bodyProps: {
                     rows: tableRowsSorted,
                     columns: columns,
-                    selectedRows: selected,
+                    selectedIndexes: selected,
+                    page: page,
+                    rowsPerPage: rowsPerPage,
                     rowCellsMapper: provinceRowCellsMapper,
                     onRowClick: handleRowClick
                 } as GenericTableBodyProps<Province>,

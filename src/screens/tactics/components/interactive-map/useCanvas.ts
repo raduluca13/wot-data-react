@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo, createRef, useState } from 'react'
 import { MapMarker, MarkerType, Point } from '../../../../slices/mapInteractionSlice'
 import { MapTool } from './MapTools'
 
@@ -6,9 +6,9 @@ export interface UseCanvasProps {
     draw?: Function,
     preDraw?: Function,
     postDraw?: Function,
-    onMouseDown: (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void,
-    onMouseUp: (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void,
-    onMouseMove: (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void,
+    // onMouseDown: (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void,
+    // onMouseUp: (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void,
+    // onMouseMove: (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => void,
     markers?: MapMarker[],
     cursorPosition?: Point,
     activeTool: MapTool,
@@ -17,22 +17,41 @@ export interface UseCanvasProps {
 
 
 const useCanvas = (props: UseCanvasProps) => {
-    console.log("canvas init with props: ", props)
+    const [size, setSize] = useState(400)
     const MARGIN_PROCENT = 10;
-    const SIZE = 400;
-    const canvasElement = document.createElement("canvas")
-    canvasElement.width = SIZE;
-    canvasElement.height = SIZE;
-    const canvasRef = useRef<HTMLCanvasElement>(canvasElement)
-    const { markers, cursorPosition, activeTool } = props
-
     let currentRadius = 5;
     const endRadius = 20;
 
-    const drawMarkers = (context: CanvasRenderingContext2D) => {
+    // const canvasElement = useMemo(() => document.createElement("canvas"), [size])
+    // canvasElement.width = size;
+    // canvasElement.height = size;
+    // const canvasRef = useRef<HTMLCanvasElement>(canvasElement)
+
+    const canvasRef = useMemo(() => createRef<HTMLCanvasElement>(), [props.markers?.length])
+    const cursorPosition = useMemo(() => props.cursorPosition, [props.cursorPosition?.x, props.cursorPosition?.y])
+    const markers = useMemo(() => props.markers, [props.markers?.length])
+    const activeTool = useMemo(() => props.activeTool, [props.activeTool.cursorTool, props.activeTool.tankTool])
+
+    // useEffect(() => { console.log({ cursorPosition }, 'changed') }, [cursorPosition])
+    // useEffect(() => { console.log({ markers }, 'changed') }, [markers])
+    // useEffect(() => { console.log({ activeTool }, 'changed') }, [activeTool])
+    // useEffect(() => { console.log({ canvasElement }, 'changed') }, [canvasElement])
+    // useEffect(() => { console.log({ size }, 'changed') }, [size])
+
+
+    useEffect(() => {
+        // console.log({ canvasRef }, 'canvas ref changed')
+        if (canvasRef.current) {
+            const canvas = canvasRef.current
+            canvas.width = 400;
+            canvas.height = 400;
+        }
+    }, [canvasRef])
+
+    const drawMarkers = useMemo(() => (context: CanvasRenderingContext2D) => {
         // const canvas = canvasRef.current as HTMLCanvasElement;
         // canvas.height = canvas.width = SIZE;
-        console.log("drawing markers ", { markers })
+        // console.log("drawing markers ", { markers })
         if (context) {
             // if (markers?.length === 0) {
             //     context.clearRect(0, 0, SIZE, SIZE);
@@ -53,30 +72,29 @@ const useCanvas = (props: UseCanvasProps) => {
                 }
                 context.beginPath();
                 context.fillStyle = "#FF0000";
-                context.drawImage(img, marker.x-12, marker.y-10, 20, 20);
+                context.drawImage(img, marker.x - 12, marker.y - 10, 20, 20);
                 // context.fillRect(marker.x, marker.y, 5, 5);
                 context.fill();
                 context.stroke();
             })
         }
-    }
+    }, [markers?.length])
 
-    const drawPoint = (context: CanvasRenderingContext2D) => {
+    const drawPoint = useMemo(() => (context: CanvasRenderingContext2D) => {
         if (context) {
-            context.clearRect(0, 0, SIZE, SIZE);
+            context.clearRect(0, 0, size, size);
 
             if (cursorPosition && cursorPosition.x && cursorPosition.y) {
                 context.beginPath();
                 context.fillStyle = "#FF0000";
                 context.arc(cursorPosition.x, cursorPosition.y, 10, 0 * Math.PI, 2 * Math.PI)
+                // context.arc(395, 395, 5, 0 * Math.PI, 2 * Math.PI)
                 context.fill();
                 context.stroke()
-
                 // animate(context, cursorPosition, currentRadius)
-                return;
             }
         }
-    }
+    }, [cursorPosition?.x, cursorPosition?.y])
 
     // const animate = (context: CanvasRenderingContext2D, cursorPosition: Point, radius: number) => {
     //     currentRadius += 5;
@@ -91,30 +109,26 @@ const useCanvas = (props: UseCanvasProps) => {
     //     }
     // }
 
-    useEffect(() => {
-        const canvas = canvasRef.current
-        canvas.width = 400;
-        canvas.height = 400;
-    }, [])
+
 
     useEffect(() => {
-        console.log(canvasRef.current.width, canvasRef.current.height)
-        const context = canvasRef.current.getContext('2d')
+        if (canvasRef.current) {
+            const render = (context: CanvasRenderingContext2D) => {
+                context.clearRect(0, 0, size, size)
 
-        const render = (context: CanvasRenderingContext2D) => {
-            context.clearRect(0, 0, SIZE, SIZE)
+                drawMarkers(context)
 
-            drawMarkers(context)
+                if (activeTool.cursorTool) {
+                    drawPoint(context)
+                }
+            }
 
-            if (activeTool.cursorTool) {
-                drawPoint(context)
+            const context = canvasRef.current.getContext('2d')
+            if (context) {
+                render(context)
             }
         }
-
-        if (context) {
-            render(context)
-        }
-    }, [drawPoint, drawMarkers, canvasRef, markers, cursorPosition, activeTool])
+    }, [drawPoint, drawMarkers, canvasRef, markers, cursorPosition, activeTool, size])
 
 
     return canvasRef

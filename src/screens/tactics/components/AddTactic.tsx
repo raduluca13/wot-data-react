@@ -9,6 +9,7 @@ import TacticRoleForm from './tactic-role/TacticRoleForm';
 import TacticRoles from './tactic-role/TacticRoles';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import InteractiveMap from './interactive-map/InteractiveMap';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -64,16 +65,7 @@ const AddTactic = () => {
 
     return (
         <div className={classes.addTacticContainer}>
-            <div className={classes.containerActions}>
-                <Button variant="outlined" color="primary" onClick={onClickAddTactic} disabled={!isFormValid()}>
-                    Save Tactic
-                </Button>
-                <Button variant="outlined" color="secondary" onClick={onClickCancelEdit} disabled={!isFormValid()}>
-                    Cancel
-                </Button>
-            </div>
-
-            {/* <InteractiveMap /> */}
+            <InteractiveMap />
             <div className={classes.containerForms}>
                 <TacticMetadataForm />
 

@@ -22,7 +22,7 @@ const TacticRoles = (props: ReturnType<typeof collect>) => {
     const { connectDropTarget } = props;
     const tacticRoles = useSelector(tacticRolesSelector);
     const [selectedRole, setSelectedRole] = React.useState(0);
-    console.log({ tacticRoles })
+
     const changeSelectedRole = (event: any) => {
         setSelectedRole(+event.target.value);
     };

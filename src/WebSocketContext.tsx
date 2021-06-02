@@ -4,9 +4,11 @@ import { MapTool } from './screens/tactics/components/interactive-map/MapTools';
 import { addMarker, clearMarkers, MapMarker, moveCursor, setActiveTool } from './slices/mapInteractionSlice';
 import { changeMap } from './slices/mapsApiSlice';
 import { io } from "socket.io-client";
+import CONFIG from './api/config';
 
 export const NEW_CHAT_MESSAGE_EVENT = "newChatMessage";
-export const WS_BASE = 'wss://wot-data-server.herokuapp.com:5555';
+// export const WS_BASE = 'wss://wot-data-server.herokuapp.com:5555';
+const WS_BASE = CONFIG.WS_BASE
 
 const socket = io(WS_BASE, {
     upgrade: true,
@@ -27,7 +29,10 @@ const WebSocketContext = createContext({ socket });
 const WebSocketProvider = (props: any) => {
     const dispatch = useDispatch()
     const [value, setValue] = useState({ socket });
-    useEffect(() => initSockets({ setValue, dispatch }), [value, setValue, dispatch]);
+    
+    useEffect(() => {
+        initSockets({ setValue, dispatch })
+    }, [value, setValue, dispatch]);
 
     return (
         <WebSocketContext.Provider value={value}>
@@ -58,7 +63,6 @@ export const socketEvents = ({ setValue, dispatch }: any) => {
     socket.on('sendMessage', ({ message }: any) => {
         // console.log("sending message")
         setValue((state: any) => {
-            console.log({ state })
             return { ...state, message }
         });
     });
@@ -83,19 +87,15 @@ export const socketEvents = ({ setValue, dispatch }: any) => {
 
     socket.on("markerAdded", (data: any) => {
         const marker = JSON.parse(data) as MapMarker
-        console.log({ marker })
         dispatch(addMarker(marker))
     })
 
     socket.on("selectedToolChanged", (data: any) => {
         const mapTool = JSON.parse(data) as MapTool;
-        console.log({ mapTool })
         dispatch(setActiveTool(mapTool))
     })
 
     socket.on("mapChanged", (mapName: string) => {
-        console.log(mapName)
-        // console.log("recieved *mapChanged* event: ", { mapName })
         dispatch(changeMap(JSON.parse(mapName)))
     })
 

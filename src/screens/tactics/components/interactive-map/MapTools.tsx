@@ -9,7 +9,7 @@ import {
     InputLabel,
     Select
 } from '@material-ui/core';
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import NearMeIcon from '@material-ui/icons/NearMe';
 import { useDispatch, useSelector } from 'react-redux';
 import { MarkerType, setActiveTool } from '../../../../slices/mapInteractionSlice';
@@ -57,46 +57,30 @@ const MapTools = () => {
     const webSocketContext = useContext(WebSocketContext)
     const { maps, mapFetchError, mapFetchStatus, selectedMap } = useSelector(mapsApiStateSelector)
     const classes = useStyles({ activeTool: "", cursorActive: true });
+    const defaultMapSelection = useMemo(() => <MenuItem key={"NONE-map"} value={"NONE"}>NONE</MenuItem>, [])
 
-    const createMapDropdownOptions = () => {
-        if (mapFetchStatus === "failed") {
-            console.error({ mapFetchError })
-            return <p>Could not connect server to get info</p>
-        }
+    const mapOptions = useMemo(() => {
+        return [...maps?.map((map: WoTMap) => {
+            return <MenuItem key={map.arena_id} value={map.name_i18n}>
+                {map.name_i18n}
+            </MenuItem>
+        }), defaultMapSelection]
 
-        if (mapFetchStatus === "idle") {
-            return <MenuItem></MenuItem>;;
-        }
+    }, [maps, defaultMapSelection])
 
-        if (mapFetchStatus === "loading") {
-            return <MenuItem></MenuItem>;
-        }
-
-        if (mapFetchStatus === "succeeded") {
-            const mapOptions = maps.map((map: WoTMap) => {
-                return <MenuItem key={map.arena_id} value={map.name_i18n}>
-                    {map.name_i18n}
-                </MenuItem>
-            })
-
-            mapOptions.push(<MenuItem key={"NONE-map"} value={"NONE"}>
-                {"NONE"}
-            </MenuItem>)
-            return mapOptions
-        }
-    }
+    useEffect(() => { console.log({ mapOptions }) }, [mapOptions])
 
     const onClickHeavyTankTool = useCallback((event) => {
-        webSocketContext.socket.emit("selectedToolChanged", JSON.stringify({tankTool: MarkerType.HEAVY_TANK } as MapTool))
-    }, [])
+        webSocketContext.socket.emit("selectedToolChanged", JSON.stringify({ tankTool: MarkerType.HEAVY_TANK } as MapTool))
+    }, [webSocketContext])
 
     const onClickMediumTankTool = useCallback((event) => {
-        webSocketContext.socket.emit("selectedToolChanged", JSON.stringify({tankTool: MarkerType.MEDIUM_TANK } as MapTool))
-    }, [])
+        webSocketContext.socket.emit("selectedToolChanged", JSON.stringify({ tankTool: MarkerType.MEDIUM_TANK } as MapTool))
+    }, [webSocketContext])
 
     const onClickCursorTool = useCallback((event) => {
-        webSocketContext.socket.emit("selectedToolChanged", JSON.stringify({cursorTool: true } as MapTool))
-    }, [])
+        webSocketContext.socket.emit("selectedToolChanged", JSON.stringify({ cursorTool: true } as MapTool))
+    }, [webSocketContext])
 
     const onClearMap = useCallback((event) => {
         webSocketContext.socket.emit("clearedMarkers")
@@ -104,12 +88,13 @@ const MapTools = () => {
 
     const onClickSavePositions = useCallback((event) => {
         // dispatch(saveTacticPositions(positionList));
-    }, []);
+    }, [webSocketContext]);
 
     const onChangeMap = useCallback((event: React.ChangeEvent<{ name?: string | undefined; value: unknown; }>) => {
-        webSocketContext.socket.emit("mapChanged", JSON.stringify(event.target.value))
+        const message = JSON.stringify(event.target.value)
+        webSocketContext.socket.emit("mapChanged", message)
+        console.log({ message })
     }, [webSocketContext])
-
 
 
     const renderFormGroup = () => {
@@ -118,11 +103,10 @@ const MapTools = () => {
                 <InputLabel id="map-form-control">Map</InputLabel>
                 <Select
                     labelId="map-form-control"
-                    id="map-select"
                     value={selectedMap.name_i18n}
                     onChange={onChangeMap}
                 >
-                    {createMapDropdownOptions()}
+                    {mapOptions}
                 </Select>
             </FormControl>
         </FormGroup>

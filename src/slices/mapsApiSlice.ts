@@ -33,11 +33,12 @@ const saveState = (state: MapsApiState) => {
 };
 
 const createDefaultMapsApiState = () => {
+    const mapFallbackOption = { arena_id: "NONE", name_i18n: "NONE" } as WoTMap
     return {
         mapFetchStatus: 'idle',
         mapFetchError: null,
-        maps: [{ arena_id: "NONE", name_i18n: "NONE" }] as WoTMap[],
-        selectedMap: { arena_id: "NONE", name_i18n: "NONE" } as WoTMap
+        maps: [mapFallbackOption],
+        selectedMap: mapFallbackOption
     } as MapsApiState;
 }
 const initialState: MapsApiState = loadState() || createDefaultMapsApiState();

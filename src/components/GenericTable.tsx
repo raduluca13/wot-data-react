@@ -9,7 +9,7 @@ export interface GenericTableProps<T> {
     classes: ClassNameMap
     headerProps: GenericTableHeadProps<T>
     bodyProps: GenericTableBodyProps<T>
-    paginationProps?: GenericTablePaginationProps<T>
+    paginationProps: GenericTablePaginationProps<T>
     toolbarProps: GenericTableToolbarProps,
     paginationEnabled: boolean
 }
@@ -32,16 +32,18 @@ const GenericTable = function <T>(props: GenericTableProps<T> & { children?: Rea
 
     const buildPagination = () => {
         console.log(isPaginated)
-        // if (isPaginated) {
-        //     return <TablePagination {...paginationProps} />
-        // }
+        if (isPaginated) {
+            return <TablePagination {...paginationProps} />
+        }
     }
 
     const buildTable = () => {
         console.log({ paginationProps })
         return <TableContainer>
             <GenericTableToolbar {...toolbarProps} />
+            
             {buildPagination()}
+            
             <Table
                 className={classes?.table}
                 aria-labelledby="tableTitle"
@@ -55,6 +57,7 @@ const GenericTable = function <T>(props: GenericTableProps<T> & { children?: Rea
                     {...bodyProps}
                 />
             </Table>
+            
             {buildPagination()}
         </TableContainer >
     }

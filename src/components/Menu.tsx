@@ -52,6 +52,14 @@ const Menu = () => {
             </Typography>
 
             <Typography variant="h6" className={classes.title}>
+                <Button onClick={() => redirectTo('/tournaments')}>Tournaments</Button>
+            </Typography>
+
+            <Typography variant="h6" className={classes.title}>
+                <Button onClick={() => redirectTo('/globalMap')}>Global Map</Button>
+            </Typography>
+
+            <Typography variant="h6" className={classes.title}>
                 <Button onClick={() => redirectTo('/profile')}>My profile</Button>
             </Typography>
         </Toolbar>
